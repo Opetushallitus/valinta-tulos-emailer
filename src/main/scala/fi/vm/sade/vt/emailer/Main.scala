@@ -1,12 +1,14 @@
 package fi.vm.sade.vt.emailer
 
-import fi.vm.sade.vt.emailer.config.AppConfig
-import fi.vm.sade.vt.emailer.config.AppConfig.AppConfig
-import fi.vm.sade.vt.emailer.ryhmasahkoposti.{GroupEmail, GroupEmailService}
+import fi.vm.sade.vt.emailer.config.Registry
+import fi.vm.sade.vt.emailer.config.Registry.Registry
 
 object Main extends App {
-  val appConfig: AppConfig = AppConfig.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("dev"))
-  // Usage --
-  // val id = new GroupEmailService(appConfig.settings).send(GroupEmail("oid:123", "sähköposti@example.com", "FI", "Erkki", "1.1.2016"))
-  // println(id)
+  val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("dev"))
+  registry.start
+
+  registry.mailer.sendBatch() match {
+    case Some(jobId) => println(s"Job sent succesfully, jobId: $jobId")
+    case _ => println("Job failed. More info in logs.")
+  }
 }

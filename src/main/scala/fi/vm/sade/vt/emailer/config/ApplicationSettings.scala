@@ -3,7 +3,7 @@ package fi.vm.sade.vt.emailer.config
 import java.io.File
 
 import com.typesafe.config._
-import fi.vm.sade.vt.emailer.Logging
+import fi.vm.sade.vt.emailer.util.Logging
 
 import scala.collection.JavaConversions._
 
@@ -28,6 +28,7 @@ case class ApplicationSettings(config: Config) {
   val groupEmailCasPassword = config.getString("ryhmasahkoposti.cas.password")
   val groupEmailSessionUrl = config.getString("ryhmasahkoposti.service.session.url")
   val groupEmailServiceUrl = config.getString("ryhmasahkoposti.service.email.url")
+  val vastaanottopostiUrl = config.getString("valinta-tulos-service.vastaanottoposti.url")
 
   def withOverride(keyValuePair : (String, String)) = {
     ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)))

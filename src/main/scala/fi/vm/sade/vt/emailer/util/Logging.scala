@@ -1,4 +1,4 @@
-package fi.vm.sade.vt.emailer
+package fi.vm.sade.vt.emailer.util
 
 import org.slf4j.LoggerFactory
 

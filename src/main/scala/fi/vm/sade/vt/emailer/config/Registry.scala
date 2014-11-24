@@ -1,15 +1,15 @@
 package fi.vm.sade.vt.emailer.config
 
-import fi.vm.sade.vt.emailer.Logging
+import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
 
-object AppConfig extends Logging {
+object Registry extends Logging {
   def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
 
   def fromOptionalString(profile: Option[String]) = {
     fromString(profile.getOrElse(getProfileProperty))
   }
 
-  def fromSystemProperty: AppConfig = {
+  def fromSystemProperty: Registry = {
     fromString(getProfileProperty)
   }
 
@@ -27,29 +27,41 @@ object AppConfig extends Logging {
   /**
    * Default profile, uses ~/oph-configuration/valinta-tulos-emailer.properties
    */
-  class Default extends AppConfig with ExternalProps
+  class Default extends Registry with ExternalProps
 
   /**
    * Templated profile, uses config template with vars file located by system property vtemailer.vars
    */
-  class LocalTestingWithTemplatedVars(val templateAttributesFile: String = System.getProperty("vtemailer.vars")) extends AppConfig with TemplatedProps
+  class LocalTestingWithTemplatedVars(val templateAttributesFile: String = System.getProperty("vtemailer.vars")) extends Registry with TemplatedProps
 
   /**
    * Dev profile
    */
-  class Dev extends AppConfig with ExampleTemplatedProps
+  class Dev extends Registry with ExampleTemplatedProps {
+    override def start {
+      ValintatulosServiceRunner.start
+    }
+  }
 
   /**
    *  IT (integration test) profiles. Uses embedded mongo database and stubbed external deps
    */
-  class IT extends ExampleTemplatedProps with StubbedExternalDeps
+  class IT extends ExampleTemplatedProps with StubbedExternalDeps {
+    override def start {
+      ValintatulosServiceRunner.start
+    }
+
+    override lazy val settings = ConfigTemplateProcessor.createSettings(templateAttributesFile)
+      .withOverride("valinta-tulos-service.vastaanottoposti.url",
+        "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort+"/valinta-tulos-service/vastaanottoposti")
+  }
 
   trait ExternalProps {
     def configFile = System.getProperty("user.home") + "/oph-configuration/valinta-tulos-emailer.properties"
     lazy val settings = ApplicationSettings.loadSettings(configFile)
   }
 
-  trait ExampleTemplatedProps extends AppConfig with TemplatedProps {
+  trait ExampleTemplatedProps extends Registry with TemplatedProps {
     def templateAttributesFile = "src/main/resources/oph-configuration/dev-vars.yml"
   }
 
@@ -62,10 +74,7 @@ object AppConfig extends Logging {
 
   trait StubbedExternalDeps
 
-  trait AppConfig {
-    def start {}
-    def stop {}
-
+  trait Registry extends Components {
     def settings: ApplicationSettings
 
     def properties: Map[String, String] = settings.toProperties

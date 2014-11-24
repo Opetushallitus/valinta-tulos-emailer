@@ -3,47 +3,76 @@ package fi.vm.sade.vt.emailer.ryhmasahkoposti
 import fi.vm.sade.security.cas.{CasClient, CasConfig, CasTicketRequest}
 import fi.vm.sade.vt.emailer.DefaultHttpClient
 import fi.vm.sade.vt.emailer.config.ApplicationSettings
-import org.json4s.NoTypeHints
+import fi.vm.sade.vt.emailer.util.Logging
+import json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
-class GroupEmailService(val settings: ApplicationSettings) {
-  private val jsessionPattern = """(^JSESSIONID=[^;]+)""".r
-  private lazy val casClient = new CasClient(new CasConfig(settings.casUrl))
-  implicit val formats = Serialization.formats(NoTypeHints)
 
-  def send(email: GroupEmail): Option[String] = {
-    sessionRequest match {
-      case Some(sessionId) => {
-        val groupEmailRequest = DefaultHttpClient.httpPost(settings.groupEmailServiceUrl,
-          Some(Serialization.write(GroupEmail("oid:123", "sähköposti@example.com", "FI", "Erkki", "1.1.2016"))))
-          .header("Cookie", sessionId)
-          .header("Content-type", "application/json")
+trait GroupEmailComponent {
+  val groupEmailService: GroupEmailService
 
-        groupEmailRequest.response() match {
-          case Some(json) => (parse(json) \ "id").extractOpt[String]
-          case _ => None
+  class RemoteGroupEmailService(val settings: ApplicationSettings) extends GroupEmailService with JsonFormats with Logging {
+    private val jsessionPattern = """(^JSESSIONID=[^;]+)""".r
+    private lazy val casClient = new CasClient(new CasConfig(settings.casUrl))
+
+    def send(email: GroupEmail): Option[String] = {
+      sessionRequest match {
+        case Some(sessionId) => {
+          val groupEmailRequest = DefaultHttpClient.httpPost(settings.groupEmailServiceUrl, Some(Serialization.write(email)))
+            .header("Cookie", sessionId)
+            .header("Content-type", "application/json")
+
+          logger.info(s"Sending email to ${settings.groupEmailServiceUrl}")
+          groupEmailRequest.response() match {
+            case Some(json) => {
+              val jobId = (parse(json) \ "id").extractOpt[String]
+              logger.info(s"Batch sent successfully, jobId: $jobId")
+              jobId
+            }
+            case _ => {
+              logger.info(s"Batch sending failed. Service failure.")
+              None
+            }
+          }
+        }
+        case _ => {
+          logger.info(s"Batch sending failed. Failed to get a CAS session going.")
+          None
         }
       }
-      case _ => None
     }
-  }
 
-  private def sessionRequest: Option[String] = {
-    val ticketRequest = casClient.getServiceTicket(
-      new CasTicketRequest(settings.groupEmailCasUrl, settings.groupEmailCasUsername, settings.groupEmailCasPassword)
-    )
+    private def sessionRequest: Option[String] = {
+      val ticketRequest = casClient.getServiceTicket(
+        new CasTicketRequest(settings.groupEmailCasUrl, settings.groupEmailCasUsername, settings.groupEmailCasPassword)
+      )
 
-    ticketRequest match {
-      case Some(casTicket) => {
-        val sessionRequest = DefaultHttpClient.httpGet(settings.groupEmailSessionUrl).param("ticket", casTicket)
-        for {
-          setCookieHeader <- sessionRequest.responseWithHeaders()._2.get("Set-Cookie")
-          jsessionidCookie <- setCookieHeader.find(_.startsWith("JSESSIONID"))
-          cookieString <- jsessionPattern.findFirstIn(jsessionidCookie)
-        } yield cookieString
+      ticketRequest match {
+        case Some(casTicket) => {
+          val sessionRequest = DefaultHttpClient.httpGet(settings.groupEmailSessionUrl).param("ticket", casTicket)
+          for {
+            setCookieHeader <- {
+              val responseWithHeaders: (Int, Map[String, List[String]], String) = sessionRequest.responseWithHeaders()
+              responseWithHeaders._2.get("Set-Cookie")
+            }
+            jsessionidCookie <- setCookieHeader.find(_.startsWith("JSESSIONID"))
+            cookieString <- jsessionPattern.findFirstIn(jsessionidCookie)
+          } yield cookieString
+        }
+        case _ => None
       }
-      case _ => None
     }
   }
+
+  class FakeGroupEmailService extends GroupEmailService with Logging with JsonFormats {
+    override def send(email: GroupEmail): Option[String] = {
+      logger.info(s"Sending email: ${Serialization.write(email)}")
+      Some("Thank you for using fake group email service")
+    }
+  }
+}
+
+trait GroupEmailService {
+  def send(email: GroupEmail): Option[String]
 }
