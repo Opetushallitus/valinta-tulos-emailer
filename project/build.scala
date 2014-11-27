@@ -7,6 +7,7 @@ object ValintatulosEmailerBuild extends Build {
   val Name = "valinta-tulos-emailer"
   val Version = "0.1.0-SNAPSHOT"
   val ScalaVersion = "2.11.4"
+  val ScalatraVersion = "2.3.0.RC3"
 
   lazy val project = Project(
     "valinta-tulos-emailer",
@@ -26,7 +27,9 @@ object ValintatulosEmailerBuild extends Build {
         "com.typesafe" % "config" % "1.2.1",
         "org.slf4j" % "slf4j-log4j12" % "1.7.7",
         "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.4.1",
-        "junit" % "junit" % "4.11" % "test"
+        "junit" % "junit" % "4.11" % "test",
+        "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test",
+        "org.scalatra" %% "scalatra-json" % ScalatraVersion % "test"
       ),
       mainClass in oneJar := Some("fi.vm.sade.vt.emailer.Main"),
       resolvers += Classpaths.typesafeReleases,

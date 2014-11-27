@@ -5,6 +5,8 @@ import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
 object Registry extends Logging {
   def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
 
+  def port() = ValintatulosServiceRunner.valintatulosPort
+
   def fromOptionalString(profile: Option[String]) = {
     fromString(profile.getOrElse(getProfileProperty))
   }
