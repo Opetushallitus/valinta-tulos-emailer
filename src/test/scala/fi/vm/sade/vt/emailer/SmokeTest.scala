@@ -8,7 +8,6 @@ import org.specs2.mutable._
 
 
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
-
   val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("it"))
   registry.start
 
@@ -22,9 +21,4 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
       }
     }
   }
-
-  def putJSON[T](path: String, body: String, headers: Map[String, String] = Map.empty)(block: => T): T = {
-    put(path, body.getBytes("UTF-8"), headers + ("Content-type" -> "application/json"))(block)
-  }
-
 }
