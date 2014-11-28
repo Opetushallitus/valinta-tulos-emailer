@@ -5,8 +5,6 @@ import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
 object Registry extends Logging {
   def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
 
-  def port() = ValintatulosServiceRunner.valintatulosPort
-
   def fromOptionalString(profile: Option[String]) = {
     fromString(profile.getOrElse(getProfileProperty))
   }
@@ -53,9 +51,14 @@ object Registry extends Logging {
       ValintatulosServiceRunner.start
     }
 
+    def lastEmailSize() = groupEmailService match {
+      case x: FakeGroupEmailService => x.getLastEmailSize()
+      case _ => new IllegalAccessError("getLastEmailSize error")
+    }
+
     override lazy val settings = ConfigTemplateProcessor.createSettings(templateAttributesFile)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
-        "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort+"/valinta-tulos-service/vastaanottoposti")
+        "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
   }
 
   trait ExternalProps {

@@ -66,8 +66,11 @@ trait GroupEmailComponent {
   }
 
   class FakeGroupEmailService extends GroupEmailService with Logging with JsonFormats {
+    private var lastEmailSize = 0
+    def getLastEmailSize() = lastEmailSize
     override def send(email: GroupEmail): Option[String] = {
       logger.info(s"Sending email: ${Serialization.write(email)}")
+      lastEmailSize = email.recipient.size
       Some("Thank you for using fake group email service")
     }
   }
