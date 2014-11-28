@@ -29,6 +29,7 @@ case class ApplicationSettings(config: Config) {
   val groupEmailSessionUrl = config.getString("ryhmasahkoposti.service.session.url")
   val groupEmailServiceUrl = config.getString("ryhmasahkoposti.service.email.url")
   val vastaanottopostiUrl = config.getString("valinta-tulos-service.vastaanottoposti.url")
+  val batchSize = config.getInt("vt.emailer.batch.size")
 
   def withOverride(keyValuePair : (String, String)) = {
     ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)))
