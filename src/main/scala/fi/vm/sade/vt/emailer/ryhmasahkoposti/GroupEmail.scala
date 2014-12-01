@@ -16,7 +16,7 @@ object Replacement {
 object Recipient {
   val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
 
-  def apply(valintatulosRecipient: valintatulos.Recipient): Recipient = {
+  def apply(valintatulosRecipient: valintatulos.VastaanotettavuusIlmoitus): Recipient = {
     val replacements = List(Replacement.firstName(valintatulosRecipient.etunimi), Replacement.deadline(fmt.print(valintatulosRecipient.deadline)))
     new Recipient(valintatulosRecipient.hakijaOid, valintatulosRecipient.email, "FI", replacements)
   }

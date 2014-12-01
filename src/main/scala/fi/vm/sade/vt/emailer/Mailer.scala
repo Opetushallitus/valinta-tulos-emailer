@@ -2,7 +2,7 @@ package fi.vm.sade.vt.emailer
 
 import fi.vm.sade.vt.emailer.ryhmasahkoposti.{EmailInfo, GroupEmail, GroupEmailComponent}
 import fi.vm.sade.vt.emailer.util.Logging
-import fi.vm.sade.vt.emailer.valintatulos.{Recipient, VastaanOttoPostiComponent}
+import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanOttoPostiComponent}
 
 trait MailerComponent {
   this: GroupEmailComponent with VastaanOttoPostiComponent =>
@@ -10,8 +10,8 @@ trait MailerComponent {
   val mailer: Mailer
 
   class Mailer extends Logging {
-    def sendBatch(): Option[String] = {
-      val batch: List[Recipient] = vastaanottopostiService.fetchRecipientBatch
+    def sendBatch(): Option[(String, List[VastaanotettavuusIlmoitus])] = {
+      val batch: List[VastaanotettavuusIlmoitus] = vastaanottopostiService.fetchRecipientBatch
       val recipients: List[ryhmasahkoposti.Recipient] = batch.map(ryhmasahkoposti.Recipient(_))
       logger.info(s"Starting to send batch. Batch size ${recipients.size}")
       if (recipients.size > 0) {

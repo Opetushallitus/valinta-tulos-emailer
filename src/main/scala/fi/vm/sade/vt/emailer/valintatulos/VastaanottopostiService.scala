@@ -10,11 +10,11 @@ trait VastaanOttoPostiComponent {
   val vastaanottopostiService: VastaanottopostiService
 
   class VastaanottopostiService(settings: ApplicationSettings) extends JsonFormats with Logging {
-    def fetchRecipientBatch: List[Recipient] = {
+    def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl)
         .param("limit", settings.batchSize.toString)
       reciepientBatchRequest.response() match {
-        case Some(jsonString) => parse(jsonString).extract[List[Recipient]]
+        case Some(jsonString) => parse(jsonString).extract[List[VastaanotettavuusIlmoitus]]
         case _ => {
           logger.info("Couldn't not connect to "+settings.vastaanottopostiUrl)
           List()
