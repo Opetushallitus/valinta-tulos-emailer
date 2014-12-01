@@ -5,6 +5,7 @@ import fi.vm.sade.vt.emailer.config.ApplicationSettings
 import fi.vm.sade.vt.emailer.util.Logging
 import json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
+import org.json4s.jackson.Serialization
 
 trait VastaanOttoPostiComponent {
   val vastaanottopostiService: VastaanottopostiService
@@ -18,6 +19,18 @@ trait VastaanOttoPostiComponent {
         case _ => {
           logger.error("Couldn't not connect to "+settings.vastaanottopostiUrl)
           List()
+        }
+      }
+    }
+
+    def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean = {
+      val reciepts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
+      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts)))
+      result.responseWithHeaders() match {
+        case (status, _, _) if status == 200 => true
+        case (status, _, body) => {
+          logger.error(s"Sending confirmation failed with status: $status and body: $body")
+          false
         }
       }
     }
