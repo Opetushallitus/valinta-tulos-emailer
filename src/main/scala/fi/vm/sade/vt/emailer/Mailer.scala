@@ -2,10 +2,10 @@ package fi.vm.sade.vt.emailer
 
 import fi.vm.sade.vt.emailer.ryhmasahkoposti.{EmailInfo, GroupEmail, GroupEmailComponent}
 import fi.vm.sade.vt.emailer.util.Logging
-import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanOttoPostiComponent}
+import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanottopostiComponent}
 
 trait MailerComponent {
-  this: GroupEmailComponent with VastaanOttoPostiComponent =>
+  this: GroupEmailComponent with VastaanottopostiComponent =>
 
   val mailer: Mailer
 

@@ -7,7 +7,7 @@ import json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
-trait VastaanOttoPostiComponent {
+trait VastaanottopostiComponent {
   val vastaanottopostiService: VastaanottopostiService
 
   class VastaanottopostiService(settings: ApplicationSettings) extends JsonFormats with Logging {

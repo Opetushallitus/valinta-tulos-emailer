@@ -3,10 +3,10 @@ package fi.vm.sade.vt.emailer.config
 import fi.vm.sade.vt.emailer.MailerComponent
 import fi.vm.sade.vt.emailer.config.Registry.StubbedExternalDeps
 import fi.vm.sade.vt.emailer.ryhmasahkoposti.{GroupEmailService, GroupEmailComponent}
-import fi.vm.sade.vt.emailer.valintatulos.VastaanOttoPostiComponent
+import fi.vm.sade.vt.emailer.valintatulos.VastaanottopostiComponent
 
 
-trait Components extends GroupEmailComponent with VastaanOttoPostiComponent with MailerComponent {
+trait Components extends GroupEmailComponent with VastaanottopostiComponent with MailerComponent {
   def settings: ApplicationSettings
 
   private def configureGroupEmailService: GroupEmailService = this match {
