@@ -4,7 +4,7 @@ import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.Registry
 
 object Main extends App {
-  val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("dev"))
+  val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("default"))
   registry.start
 
   registry.mailer.sendBatch() match {
