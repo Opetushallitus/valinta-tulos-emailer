@@ -31,13 +31,13 @@ trait GroupEmailComponent {
               jobId
             }
             case _ => {
-              logger.info(s"Batch sending failed. Service failure.")
+              logger.error(s"Batch sending failed. Service failure.")
               None
             }
           }
         }
         case _ => {
-          logger.info(s"Batch sending failed. Failed to get a CAS session going.")
+          logger.error(s"Batch sending failed. Failed to get a CAS session going.")
           None
         }
       }

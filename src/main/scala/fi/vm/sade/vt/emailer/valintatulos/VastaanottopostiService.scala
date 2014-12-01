@@ -16,7 +16,7 @@ trait VastaanOttoPostiComponent {
       reciepientBatchRequest.response() match {
         case Some(jsonString) => parse(jsonString).extract[List[VastaanotettavuusIlmoitus]]
         case _ => {
-          logger.info("Couldn't not connect to "+settings.vastaanottopostiUrl)
+          logger.error("Couldn't not connect to "+settings.vastaanottopostiUrl)
           List()
         }
       }
