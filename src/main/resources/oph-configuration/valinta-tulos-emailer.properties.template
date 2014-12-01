@@ -5,7 +5,7 @@
 # joka asettaa ympäristökohtaiset arvot.
 #
 
-vt.emailer.batch.size={{vt_email_batch_size}}
+vt.emailer.batch.size={{vt_emailer_batch_size}}
 
 # CAS
 cas.url={{cas_url}}
