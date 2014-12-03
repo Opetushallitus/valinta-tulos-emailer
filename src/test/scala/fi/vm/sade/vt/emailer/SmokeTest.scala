@@ -16,7 +16,7 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
     "PUT /util/fixtures/generate" in {
       registry.start
       put("util/fixtures/generate?hakemuksia=3&hakukohteita=2") {
-        !registry.mailer.sendBatch().isEmpty
+        registry.mailer.sendMail.nonEmpty
         registry.asInstanceOf[IT].lastEmailSize() equals(3)
       }
     }

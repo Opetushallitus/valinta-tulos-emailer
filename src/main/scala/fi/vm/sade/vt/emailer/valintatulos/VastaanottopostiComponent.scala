@@ -13,7 +13,7 @@ trait VastaanottopostiComponent {
   class VastaanottopostiService(settings: ApplicationSettings) extends JsonFormats with Logging {
     def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl)
-        .param("limit", settings.batchSize.toString)
+        .param("limit", settings.recipientBatchSize.toString)
       reciepientBatchRequest.response() match {
         case Some(jsonString) => parse(jsonString).extract[List[VastaanotettavuusIlmoitus]]
         case _ => {

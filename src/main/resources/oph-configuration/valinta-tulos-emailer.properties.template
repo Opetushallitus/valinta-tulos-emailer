@@ -5,7 +5,6 @@
 # joka asettaa ympäristökohtaiset arvot.
 #
 
-vt.emailer.batch.size={{vt_emailer_batch_size}}
 
 # CAS
 cas.url={{cas_url}}
@@ -14,8 +13,10 @@ ryhmasahkoposti.cas.username={{ryhmasahkoposti_app_username_to_vtemailer}}
 ryhmasahkoposti.cas.password={{ryhmasahkoposti_app_password_to_vtemailer}}
 
 # RYHMÄSÄHKÖPOSTI
+ryhmasahkoposti.service.batch.size={{email_batch_size}}
 ryhmasahkoposti.service.session.url=https://{{host.virkailija}}/ryhmasahkoposti-service/email/ok
 ryhmasahkoposti.service.email.url=https://{{host.virkailija}}/ryhmasahkoposti-service/email
 
 # Valintatulokset
+valinta-tulos-service.batch.size={{vt_batch_size}}
 valinta-tulos-service.vastaanottoposti.url=https://{{host.virkailija}}/valinta-tulos-service/vastaanottoposti

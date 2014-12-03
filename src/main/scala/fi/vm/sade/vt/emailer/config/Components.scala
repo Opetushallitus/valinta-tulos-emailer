@@ -16,7 +16,7 @@ trait Components extends GroupEmailComponent with VastaanottopostiComponent with
 
   override val groupEmailService: GroupEmailService = configureGroupEmailService
   override val vastaanottopostiService: VastaanottopostiService = new VastaanottopostiService(settings)
-  override val mailer: Mailer = new Mailer
+  override val mailer: Mailer = new Mailer(settings)
 
   def start {}
   def stop {}
