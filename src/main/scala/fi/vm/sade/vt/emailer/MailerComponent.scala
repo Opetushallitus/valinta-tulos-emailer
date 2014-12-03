@@ -23,11 +23,11 @@ trait MailerComponent {
         }
       }
       val newBatch = vastaanottopostiService.fetchRecipientBatch
-      if (newBatch.size > 0 && batchNr < 2) {
+      if (newBatch.size > 0) {
         val currentBatch = batch ::: newBatch
         if (currentBatch.size >= settings.emailBatchSize) {
+          logger.info(s"Sending batch nr. $batchNr")
           val batchIds: List[String] = sendAndConfirm(currentBatch)
-          logger.info(s"collecting for batch nr. $batchNr")
           collectAndSend(batchNr + 1, batchIds)
         } else {
           collectAndSend(batchNr, ids, currentBatch)
