@@ -1,5 +1,5 @@
 ---
 cas_url: https://itest-virkailija.oph.ware.fi/cas
 host.virkailija: "itest-virkailija.oph.ware.fi"
-email_batch_size: 100
-vt_batch_size: 500
+email_batch_size: 500
+vt_batch_size: 100
