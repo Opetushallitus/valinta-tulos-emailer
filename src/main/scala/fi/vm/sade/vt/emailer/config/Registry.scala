@@ -80,9 +80,7 @@ object Registry extends Logging {
   trait StubbedExternalDeps
 
   trait Registry extends Components {
-    def settings: ApplicationSettings
-
-    def properties: Map[String, String] = settings.toProperties
+    val settings: ApplicationSettings
   }
 
 }

@@ -6,17 +6,17 @@ import fi.vm.sade.vt.emailer.ryhmasahkoposti.{GroupEmailService, GroupEmailCompo
 import fi.vm.sade.vt.emailer.valintatulos.VastaanottopostiComponent
 
 
-trait Components extends GroupEmailComponent with VastaanottopostiComponent with MailerComponent {
-  def settings: ApplicationSettings
+trait Components extends GroupEmailComponent with VastaanottopostiComponent with MailerComponent with ApplicationSettingsComponent {
+  val settings: ApplicationSettings
 
   private def configureGroupEmailService: GroupEmailService = this match {
     case x: StubbedExternalDeps => new FakeGroupEmailService
-    case _ => new RemoteGroupEmailService(settings)
+    case _ => new RemoteGroupEmailService
   }
 
   override val groupEmailService: GroupEmailService = configureGroupEmailService
-  override val vastaanottopostiService: VastaanottopostiService = new VastaanottopostiService(settings)
-  override val mailer: Mailer = new Mailer(settings)
+  override val vastaanottopostiService: VastaanottopostiService = new VastaanottopostiService
+  override val mailer: Mailer = new Mailer
 
   def start {}
   def stop {}

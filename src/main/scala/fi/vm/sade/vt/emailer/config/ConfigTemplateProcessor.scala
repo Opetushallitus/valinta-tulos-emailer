@@ -18,7 +18,7 @@ object ConfigTemplateProcessor {
     val templatedData = ConfigTemplateProcessor.processTemplate(templateFile, attributesFile)
     val properties = new Properties()
     properties.load(new StringReader(templatedData))
-    ApplicationSettings(ConfigFactory.load(ConfigFactory.parseProperties(properties)))
+    new ApplicationSettings(ConfigFactory.load(ConfigFactory.parseProperties(properties)))
   }
 
   def processTemplate(from: String, attributesFile: String): String = {

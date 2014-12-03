@@ -21,7 +21,7 @@ object ApplicationSettings extends Logging {
   }
 }
 
-case class ApplicationSettings(config: Config) {
+class ApplicationSettings(config: Config) {
   val casUrl = config.getString("cas.url")
   val groupEmailCasUrl = config.getString("ryhmasahkoposti.cas.service")
   val groupEmailCasUsername = config.getString("ryhmasahkoposti.cas.username")
@@ -33,7 +33,7 @@ case class ApplicationSettings(config: Config) {
   val recipientBatchSize = config.getInt("valinta-tulos-service.batch.size")
 
   def withOverride(keyValuePair : (String, String)) = {
-    ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)))
+    new ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)))
   }
 
   def toProperties = {
@@ -42,4 +42,8 @@ case class ApplicationSettings(config: Config) {
       (key, config.getString(key))
     }.toMap
   }
+}
+
+trait ApplicationSettingsComponent {
+  val settings: ApplicationSettings
 }

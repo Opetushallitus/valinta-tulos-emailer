@@ -1,16 +1,16 @@
 package fi.vm.sade.vt.emailer
 
-import fi.vm.sade.vt.emailer.config.ApplicationSettings
+import fi.vm.sade.vt.emailer.config.{ApplicationSettingsComponent, ApplicationSettings}
 import fi.vm.sade.vt.emailer.ryhmasahkoposti.{EmailInfo, GroupEmail, GroupEmailComponent}
 import fi.vm.sade.vt.emailer.util.Logging
 import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanottopostiComponent}
 
 trait MailerComponent {
-  this: GroupEmailComponent with VastaanottopostiComponent =>
+  this: GroupEmailComponent with VastaanottopostiComponent with ApplicationSettingsComponent =>
 
   val mailer: Mailer
 
-  class Mailer(settings: ApplicationSettings) extends Logging {
+  class Mailer extends Logging {
     def sendMail: List[String] = {
       collectAndSend()
     }
