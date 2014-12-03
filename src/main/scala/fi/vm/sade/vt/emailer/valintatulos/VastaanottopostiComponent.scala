@@ -7,14 +7,18 @@ import json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
+import scalaj.http.HttpOptions
+
 trait VastaanottopostiComponent {
   this: ApplicationSettingsComponent =>
 
   val vastaanottopostiService: VastaanottopostiService
 
   class VastaanottopostiService extends JsonFormats with Logging {
+    private val httpOptions = Seq(HttpOptions.connTimeout(10000), HttpOptions.readTimeout(90000))
+
     def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
-      val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl)
+      val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
         .param("limit", settings.recipientBatchSize.toString)
       reciepientBatchRequest.response() match {
         case Some(jsonString) => parse(jsonString).extract[List[VastaanotettavuusIlmoitus]]

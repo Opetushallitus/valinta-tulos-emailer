@@ -8,6 +8,8 @@ import json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
+import scalaj.http.HttpOptions
+
 
 trait GroupEmailComponent {
   this: ApplicationSettingsComponent =>
@@ -17,11 +19,12 @@ trait GroupEmailComponent {
   class RemoteGroupEmailService extends GroupEmailService with JsonFormats with Logging {
     private val jsessionPattern = """(^JSESSIONID=[^;]+)""".r
     private lazy val casClient = new CasClient(new CasConfig(settings.casUrl))
+    private val httpOptions = Seq(HttpOptions.connTimeout(10000), HttpOptions.readTimeout(90000))
 
     def send(email: GroupEmail): Option[String] = {
       sessionRequest match {
         case Some(sessionId) => {
-          val groupEmailRequest = DefaultHttpClient.httpPost(settings.groupEmailServiceUrl, Some(Serialization.write(email)))
+          val groupEmailRequest = DefaultHttpClient.httpPost(settings.groupEmailServiceUrl, Some(Serialization.write(email)), httpOptions: _*)
             .header("Cookie", sessionId)
             .header("Content-type", "application/json")
 
