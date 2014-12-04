@@ -16,7 +16,7 @@ task(zipIt, type: Zip) {
     doFirst {
         // Renames abc-x.y-SOMETHING.war to abc.war
         fileTree(from: '.', include: '**/target/*.jar').files.each { oneFile ->	
-            String replaced = oneFile.path.replaceFirst('-\\d+\\.\\d+.[^.]+','')
+            String replaced = oneFile.path.replaceFirst('_\\d+\\.\\d+.[^.]+','')
             oneFile.renameTo(file(replaced))
         }
     }
