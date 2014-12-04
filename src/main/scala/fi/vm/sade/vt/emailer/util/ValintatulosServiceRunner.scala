@@ -19,7 +19,7 @@ object ValintatulosServiceRunner extends Logging {
           val javaHome = System.getProperty("JAVA8_HOME", "")
           Process(List("./sbt", "-no-colors", "test:compile"), cwd, "JAVA_HOME" -> javaHome).!
           val process = Process(List("./sbt", "-no-colors", "test:run-main fi.vm.sade.valintatulosservice.JettyLauncher", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
-          for (i <- 0 to 1800 if PortChecker.isFreeLocalPort(valintatulosPort)) {
+          for (i <- 0 to 300 if PortChecker.isFreeLocalPort(valintatulosPort)) {
             Thread.sleep(1000)
           }
           currentRunner = Some(process)
