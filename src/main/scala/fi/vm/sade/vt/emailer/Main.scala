@@ -5,7 +5,7 @@ import fi.vm.sade.vt.emailer.config.Registry.Registry
 import fi.vm.sade.vt.emailer.util.Timer
 
 object Main extends App {
-  val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("default"))
+  val registry: Registry = Registry.fromString(Option(System.getProperty("vtemailer.profile")).getOrElse("default"))
   registry.start
   Timer.timed("Batch send") {
    val ids =  registry.mailer.sendMail
