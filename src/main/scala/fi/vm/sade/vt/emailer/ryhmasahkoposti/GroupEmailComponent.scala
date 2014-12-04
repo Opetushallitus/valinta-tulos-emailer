@@ -4,7 +4,7 @@ import fi.vm.sade.security.cas.{CasClient, CasConfig, CasTicketRequest}
 import fi.vm.sade.vt.emailer.DefaultHttpClient
 import fi.vm.sade.vt.emailer.config.{ApplicationSettingsComponent, ApplicationSettings}
 import fi.vm.sade.vt.emailer.util.Logging
-import json.JsonFormats
+import fi.vm.sade.vt.emailer.json.JsonFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 

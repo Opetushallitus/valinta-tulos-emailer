@@ -1,8 +1,7 @@
-package json
+package fi.vm.sade.vt.emailer.json
 
 import org.json4s._
 import org.json4s.ext.JodaTimeSerializers
-
 
 object JsonFormats {
   val genericFormats =  new DefaultFormats {
