@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 object ValintatulosServiceRunner extends Logging {
   import scala.sys.process._
 
-  var valintatulosPort = sys.props.getOrElse("valintatulos.port", PortChecker.findFreeLocalPort.toString).toInt
+  val valintatulosPort = sys.props.getOrElse("valintatulos.port", PortChecker.findFreeLocalPort.toString).toInt
 
   val searchPaths = List("./valinta-tulos-service", "../valinta-tulos-service")
   var currentRunner: Option[scala.sys.process.Process] = None
@@ -19,7 +19,7 @@ object ValintatulosServiceRunner extends Logging {
           val javaHome = System.getProperty("JAVA8_HOME", "")
           Process(List("./sbt", "-no-colors", "test:compile"), cwd, "JAVA_HOME" -> javaHome).!
           val process = Process(List("./sbt", "-no-colors", "test:run-main fi.vm.sade.valintatulosservice.JettyLauncher", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
-          for (i <- 0 to 60 if PortChecker.isFreeLocalPort(valintatulosPort)) {
+          for (i <- 0 to 1800 if PortChecker.isFreeLocalPort(valintatulosPort)) {
             Thread.sleep(1000)
           }
           currentRunner = Some(process)
