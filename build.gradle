@@ -16,7 +16,7 @@ task(zipIt, type: Zip) {
     doFirst {
         // Renames abc-x.y-SOMETHING.war to abc.war
         fileTree(from: '.', include: '**/*.jar').files.each { oneFile ->
-            String replaced = oneFile.path.replaceFirst('_\\d+\\.\\d+.[^.]+','')
+            String replaced = oneFile.path.replaceFirst('_\\d+\\..+.jar','.jar')
             oneFile.renameTo(file(replaced))
         }
     }
@@ -26,7 +26,7 @@ task(zipIt, type: Zip) {
     destinationDir new File(buildDir, "distributions")
     archiveName zipFileName
     from 'src/main/resources'
-    from 'target'
+    from 'scala-2.11'
 }
 
 // Task for copying the .zip file to
