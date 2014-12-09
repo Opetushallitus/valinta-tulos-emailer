@@ -14,7 +14,7 @@ object Main extends App with Logging {
       logger.info(s"Job sent succesfully, jobId: $ids")
       println(s"Job sent succesfully, jobId: $ids")
     } else {
-      println("Job failed. More info in logs.")
+      println("Nothing was sent. More info in logs.")
     }
   }
   logger.info("***** VT-emailer finished *****")
