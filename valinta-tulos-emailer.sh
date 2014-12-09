@@ -4,10 +4,12 @@ logfile=/var/log/valinta-tulos-emailer.log
 
 if [ -e ${pidfile} ]; then
     pid=`cat ${pidfile}`
-    rm ${pidfile}
 fi
 
 if [ -z "$pid" ] || ! ps -p ${pid} >&- ; then
+    if [ -e ${pidfile} ]; then
+        rm ${pidfile}
+    fi
     nohup java -server -jar *.jar &> ${logfile} &
     echo $! > ${pidfile}
 else
