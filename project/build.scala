@@ -12,8 +12,7 @@ object ValintatulosEmailerBuild extends Build {
   lazy val project = Project(
     "valinta-tulos-emailer",
     file("."),
-    settings = Defaults.coreDefaultSettings ++ oneJarSettings ++
-     Seq(
+    settings = Defaults.coreDefaultSettings ++ oneJarSettings ++ Seq(
       organization := Organization,
       name := Name,
       version := Version,
@@ -32,6 +31,10 @@ object ValintatulosEmailerBuild extends Build {
         "org.scalatra" %% "scalatra-json" % ScalatraVersion % "test"
       ),
       mainClass in oneJar := Some("fi.vm.sade.vt.emailer.Main"),
+      artifact in oneJar <<= moduleName(Artifact(_)),
+      artifact in oneJar ~= { (art: Artifact) =>
+       art.copy(name = art.name + "-complete", `type` = "jar", extension = "jar")
+      },
       resolvers += Classpaths.typesafeReleases,
       resolvers += "oph-sade-artifactory-releases" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-release-local",
       resolvers += "oph-sade-artifactory-snapshots" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-snapshot-local",
