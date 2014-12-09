@@ -23,14 +23,15 @@ task(zipIt, type: Zip) {
 
     zipFileName = serviceName + "_" + branchName + "_" + new Date().format("yyyyMMddHHmmss") + ".zip"
 
-    include("*.jar")
-    include("*")
-    include("./*.sh")
-
     destinationDir new File(buildDir, "distributions")
     archiveName zipFileName
-    from 'src/main/resources'
+
+    include("*.jar")
+    include("oph-configuration/*")
+    include("*.sh")
+
     from '.'
+    from 'src/main/resources'
     from 'target/scala-2.11'
 }
 
