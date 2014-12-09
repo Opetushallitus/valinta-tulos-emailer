@@ -2,8 +2,8 @@
 JAVA_HOME=/data00/oph/java/jdk1.7.0_45/jre
 PATH=$PATH:$JAVA_HOME/bin
 
-classpath="oph-configuration"
 user_home=/data00/oph/valinta-tulos-emailer
+classpath="${user_home}/oph-configuration"
 pidfile=${user_home}/valinta-tulos-emailer.pid
 logfile=${user_home}/logs/valinta-tulos-runner.log
 
