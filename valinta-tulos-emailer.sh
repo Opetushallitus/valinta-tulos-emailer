@@ -14,7 +14,7 @@ if [ -z "$pid" ] || ! ps -p ${pid} >&- ; then
     if [ -e ${pidfile} ]; then
         rm ${pidfile}
     fi
-    nohup java -Duser.home=${user_home}-server -jar *.jar &> ${logfile} &
+    nohup java -Duser.home=${user_home} -server -jar *.jar &> ${logfile} &
     echo $! > ${pidfile}
 else
     echo "valinta-tulos-emailer was already running with pid: ${pid}"
