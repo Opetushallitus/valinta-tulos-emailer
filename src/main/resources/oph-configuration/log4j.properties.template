@@ -1,5 +1,5 @@
 # Logger
-log4j.rootLogger={{env_loglevel}}, FILE
+log4j.rootLogger=INFO, FILE
 {# raw-endraw -välillä template engine ei tee mitään! #} 
 {% raw %}
 # Console output
