@@ -1,8 +1,12 @@
 package fi.vm.sade.vt.emailer.config
 
-import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
+import java.io.FileInputStream
+import java.util.Properties
 
-object Registry extends Logging {
+import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
+import org.apache.log4j.PropertyConfigurator
+
+object Registry {
   def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
 
   def fromOptionalString(profile: Option[String]) = {
@@ -14,7 +18,7 @@ object Registry extends Logging {
   }
 
   def fromString(profile: String) = {
-    logger.info("Using vtemailer.profile=" + profile)
+    println("Using vtemailer.profile=" + profile)
     profile match {
       case "default" => new Default
       case "templated" => new LocalTestingWithTemplatedVars
@@ -64,6 +68,10 @@ object Registry extends Logging {
   trait ExternalProps {
     def configFile = System.getProperty("user.home") + "/oph-configuration/valinta-tulos-emailer.properties"
     lazy val settings = ApplicationSettings.loadSettings(configFile)
+    def log4jconfigFile = System.getProperty("user.home") + "/oph-configuration/log4j.properties"
+    val log4jproperties = new Properties()
+    log4jproperties.load(new FileInputStream(log4jconfigFile))
+    PropertyConfigurator.configure(log4jproperties)
   }
 
   trait ExampleTemplatedProps extends Registry with TemplatedProps {
@@ -71,7 +79,7 @@ object Registry extends Logging {
   }
 
   trait TemplatedProps {
-    logger.info("Using template variables from " + templateAttributesFile)
+    println("Using template variables from " + templateAttributesFile)
     lazy val settings = loadSettings
     def loadSettings = ConfigTemplateProcessor.createSettings(templateAttributesFile)
     def templateAttributesFile: String
