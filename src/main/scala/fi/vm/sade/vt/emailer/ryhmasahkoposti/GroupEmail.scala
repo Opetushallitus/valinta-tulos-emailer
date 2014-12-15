@@ -7,7 +7,7 @@ import org.joda.time.format.DateTimeFormat
 
 case class GroupEmail(recipient: List[Recipient], email: EmailInfo)
 case class Recipient(oid: String, email: String, languageCode: String, recipientReplacements: List[Replacement], oidType: String = "opiskelija")
-case class EmailInfo(callingProcess: String = "omattiedot", templateName: String = "omattiedot_email", body: String = "")
+case class EmailInfo(callingProcess: String = "omattiedot", templateName: String = "omattiedot_email")
 case class Replacement(name: String, value: String)
 
 object Replacement {
