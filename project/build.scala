@@ -18,6 +18,7 @@ object ValintatulosEmailerBuild extends Build {
       version := Version,
       scalaVersion := ScalaVersion,
       libraryDependencies ++= Seq(
+        "com.github.scopt" %% "scopt" % "3.3.0",
         "org.json4s" %% "json4s-jackson" % "3.2.10",
         "org.json4s" %% "json4s-ext" % "3.2.10",
         "org.scalaj" %% "scalaj-http" % "0.3.15",

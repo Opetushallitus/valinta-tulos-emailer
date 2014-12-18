@@ -3,45 +3,39 @@ package fi.vm.sade.vt.emailer.config
 import java.io.FileInputStream
 import java.util.Properties
 
+import fi.vm.sade.vt.emailer.CommandLineArgs
 import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
 import org.apache.log4j.PropertyConfigurator
 
 object Registry {
   def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
 
-  def fromOptionalString(profile: Option[String]) = {
-    fromString(profile.getOrElse(getProfileProperty))
-  }
-
-  def fromSystemProperty: Registry = {
-    fromString(getProfileProperty)
-  }
-
-  def fromString(profile: String) = {
+  def fromString(profile: String, commandLineArgs: CommandLineArgs) = {
     println("Using vtemailer.profile=" + profile)
+    println("Using test mode=" + commandLineArgs.test)
     profile match {
-      case "default" => new Default
-      case "templated" => new LocalTestingWithTemplatedVars
-      case "dev" => new Dev
-      case "it" => new IT
-      case name => throw new IllegalArgumentException("Unknown value for vtemailer.profile: " + name);
+      case "default" => new Default(commandLineArgs)
+      case "templated" => new LocalTestingWithTemplatedVars(commandLineArgs)
+      case "dev" => new Dev(commandLineArgs)
+      case "it" => new IT(commandLineArgs)
+      case name => throw new IllegalArgumentException("Unknown value for vtemailer.profile: " + name)
     }
   }
 
   /**
    * Default profile, uses ~/oph-configuration/valinta-tulos-emailer.properties
    */
-  class Default extends Registry with ExternalProps
+  class Default(val commandLineArgs: CommandLineArgs) extends Registry with ExternalProps
 
   /**
    * Templated profile, uses config template with vars file located by system property vtemailer.vars
    */
-  class LocalTestingWithTemplatedVars(val templateAttributesFile: String = System.getProperty("vtemailer.vars")) extends Registry with TemplatedProps
+  class LocalTestingWithTemplatedVars(val commandLineArgs: CommandLineArgs, val templateAttributesFile: String = System.getProperty("vtemailer.vars")) extends Registry with TemplatedProps
 
   /**
    * Dev profile
    */
-  class Dev extends Registry with ExampleTemplatedProps {
+  class Dev(val commandLineArgs: CommandLineArgs) extends Registry with ExampleTemplatedProps {
     override def start {
       ValintatulosServiceRunner.start
     }
@@ -50,7 +44,7 @@ object Registry {
   /**
    *  IT (integration test) profiles. Uses embedded mongo database and stubbed external deps
    */
-  class IT extends ExampleTemplatedProps with StubbedExternalDeps {
+  class IT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedExternalDeps {
     override def start {
       ValintatulosServiceRunner.start
     }
@@ -60,14 +54,14 @@ object Registry {
       case _ => new IllegalAccessError("getLastEmailSize error")
     }
 
-    override lazy val settings = ConfigTemplateProcessor.createSettings(templateAttributesFile)
+    override lazy val settings = ConfigTemplateProcessor.createSettings(templateAttributesFile, commandLineArgs)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
         "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
   }
 
-  trait ExternalProps {
+  trait ExternalProps extends WithCommandLineArgs {
     def configFile = System.getProperty("user.home") + "/oph-configuration/valinta-tulos-emailer.properties"
-    lazy val settings = ApplicationSettings.loadSettings(configFile)
+    lazy val settings = ApplicationSettings.loadSettings(configFile, commandLineArgs)
     def log4jconfigFile = System.getProperty("user.home") + "/oph-configuration/log4j.properties"
     val log4jproperties = new Properties()
     log4jproperties.load(new FileInputStream(log4jconfigFile))
@@ -78,11 +72,15 @@ object Registry {
     def templateAttributesFile = "src/main/resources/oph-configuration/dev-vars.yml"
   }
 
-  trait TemplatedProps {
+  trait TemplatedProps extends WithCommandLineArgs {
     println("Using template variables from " + templateAttributesFile)
     lazy val settings = loadSettings
-    def loadSettings = ConfigTemplateProcessor.createSettings(templateAttributesFile)
+    def loadSettings = ConfigTemplateProcessor.createSettings(templateAttributesFile, commandLineArgs)
     def templateAttributesFile: String
+  }
+  
+  trait WithCommandLineArgs {
+    val commandLineArgs: CommandLineArgs
   }
 
   trait StubbedExternalDeps

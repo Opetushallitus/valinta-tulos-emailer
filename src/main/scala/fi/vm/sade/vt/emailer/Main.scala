@@ -3,9 +3,23 @@ package fi.vm.sade.vt.emailer
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.Registry
 import fi.vm.sade.vt.emailer.util.{Logging, Timer}
+import scopt.OptionParser
 
 object Main extends App {
-  val registry: Registry = Registry.fromString(Option(System.getProperty("vtemailer.profile")).getOrElse("default"))
+  def parseCommandLineArgs: CommandLineArgs = {
+    val parser = new OptionParser[CommandLineArgs]("scopt") {
+      head("valinta-tulos-emailer")
+      opt[Unit]("test") action { (_, c) => c.copy(test = true)} text "Use test mode, don't send any emails"
+    }
+    parser.parse(args, CommandLineArgs()) match {
+      case Some(config) => config
+      case _ => throw new InstantiationError()
+    }
+  }
+
+  val registry: Registry = Registry.fromString(
+    Option(System.getProperty("vtemailer.profile")).getOrElse("default"),
+    parseCommandLineArgs)
   registry.start
   new Main(registry).start
 }
@@ -25,3 +39,5 @@ class Main(registry: Registry) extends Logging {
     logger.info("***** VT-emailer finished *****")
   }
 }
+
+case class CommandLineArgs(test: Boolean = false)

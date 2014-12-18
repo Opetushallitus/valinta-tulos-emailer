@@ -45,17 +45,22 @@ trait MailerComponent {
 
     private def sendBatch(batch: List[VastaanotettavuusIlmoitus]): Option[String] = {
       val recipients: List[ryhmasahkoposti.Recipient] = batch.map(ryhmasahkoposti.Recipient(_))
-      logger.info(s"Starting to send batch. Batch size ${recipients.size}")
-      groupEmailService.send(new GroupEmail(recipients, new EmailInfo())) match {
-        case Some(id)  => {
-          if (vastaanottopostiService.sendConfirmation(batch)) {
-            logger.info(s"Succesfully confirmed batch id: $id")
-          } else {
-            logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
+      if (!settings.testMode) {
+        logger.info(s"Starting to send batch. Batch size ${recipients.size}")
+        groupEmailService.send(new GroupEmail(recipients, new EmailInfo())) match {
+          case Some(id) => {
+            if (vastaanottopostiService.sendConfirmation(batch)) {
+              logger.info(s"Succesfully confirmed batch id: $id")
+            } else {
+              logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
+            }
+            Some(id)
           }
-          Some(id)
+          case _ => None
         }
-        case _ => None
+      } else {
+        logger.info(s"Not actually sending anything, test mode was set. Batch size ${recipients.size}")
+        Some(s"${recipients.size}")
       }
     }
   }

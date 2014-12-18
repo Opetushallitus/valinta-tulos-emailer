@@ -3,17 +3,18 @@ package fi.vm.sade.vt.emailer.config
 import java.io.File
 
 import com.typesafe.config._
+import fi.vm.sade.vt.emailer.CommandLineArgs
 import fi.vm.sade.vt.emailer.util.Logging
 
 import scala.collection.JavaConversions._
 
 object ApplicationSettings extends Logging {
-  def loadSettings(fileLocation: String): ApplicationSettings = {
+  def loadSettings(fileLocation: String, commandLineArgs: CommandLineArgs): ApplicationSettings = {
     val configFile = new File(fileLocation)
     if (configFile.exists()) {
       logger.info("Using configuration file " + configFile)
       val settings: Config = ConfigFactory.load(ConfigFactory.parseFile(configFile))
-      val applicationSettings = new ApplicationSettings(settings)
+      val applicationSettings = new ApplicationSettings(settings, commandLineArgs)
       applicationSettings
     } else {
       throw new RuntimeException("Configuration file not found: " + fileLocation)
@@ -21,7 +22,7 @@ object ApplicationSettings extends Logging {
   }
 }
 
-class ApplicationSettings(config: Config) {
+class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs) {
   val casUrl = config.getString("cas.url")
   val groupEmailCasUrl = config.getString("ryhmasahkoposti.cas.service")
   val groupEmailCasUsername = config.getString("ryhmasahkoposti.cas.username")
@@ -31,9 +32,10 @@ class ApplicationSettings(config: Config) {
   val vastaanottopostiUrl = config.getString("valinta-tulos-service.vastaanottoposti.url")
   val emailBatchSize = config.getInt("ryhmasahkoposti.service.batch.size")
   val recipientBatchSize = config.getInt("valinta-tulos-service.batch.size")
+  val testMode = commandLineArgs.test
 
   def withOverride(keyValuePair : (String, String)) = {
-    new ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)))
+    new ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)), commandLineArgs)
   }
 
   def toProperties = {
