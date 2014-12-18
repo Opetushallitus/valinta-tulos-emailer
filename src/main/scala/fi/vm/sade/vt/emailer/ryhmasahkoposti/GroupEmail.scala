@@ -23,10 +23,8 @@ object Replacement {
 }
 
 object Recipient {
-
   def apply(valintatulosRecipient: valintatulos.VastaanotettavuusIlmoitus): Recipient = {
     val replacements = List(Replacement.firstName(valintatulosRecipient.etunimi), Replacement.deadline(valintatulosRecipient.deadline))
-    new Recipient(valintatulosRecipient.hakijaOid, valintatulosRecipient.email, "FI", replacements)
+    new Recipient(valintatulosRecipient.hakijaOid, valintatulosRecipient.email, valintatulosRecipient.asiointikieli, replacements)
   }
-
 }
