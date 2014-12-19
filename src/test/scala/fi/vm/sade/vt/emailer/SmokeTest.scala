@@ -1,11 +1,11 @@
 package fi.vm.sade.vt.emailer
 
+import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.{IT, Registry}
-import fi.vm.sade.vt.emailer.util.{ValintatulosServiceRunner, Logging}
+import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.scalatra.test.HttpComponentsClient
 import org.specs2.mutable._
-
 
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
   lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("it"), CommandLineArgs())

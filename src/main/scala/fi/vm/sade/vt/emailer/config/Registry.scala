@@ -4,7 +4,8 @@ import java.io.FileInputStream
 import java.util.Properties
 
 import fi.vm.sade.vt.emailer.CommandLineArgs
-import fi.vm.sade.vt.emailer.util.{Logging, ValintatulosServiceRunner}
+import fi.vm.sade.utils.config.{ConfigTemplateProcessor, ApplicationSettingsLoader}
+import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.apache.log4j.PropertyConfigurator
 
 object Registry {
@@ -45,6 +46,7 @@ object Registry {
    *  IT (integration test) profiles. Uses embedded mongo database and stubbed external deps
    */
   class IT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedExternalDeps {
+
     override def start {
       ValintatulosServiceRunner.start
     }
@@ -54,14 +56,15 @@ object Registry {
       case _ => new IllegalAccessError("getLastEmailSize error")
     }
 
-    override lazy val settings = ConfigTemplateProcessor.createSettings(templateAttributesFile, commandLineArgs)
+    implicit val settingsParser = ApplicationSettingsParser(commandLineArgs)
+    override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
         "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
   }
 
   trait ExternalProps extends WithCommandLineArgs {
     def configFile = System.getProperty("user.home") + "/oph-configuration/valinta-tulos-emailer.properties"
-    lazy val settings = ApplicationSettings.loadSettings(configFile, commandLineArgs)
+    lazy val settings = ApplicationSettingsLoader.loadSettings(configFile)(ApplicationSettingsParser(commandLineArgs))
     def log4jconfigFile = System.getProperty("user.home") + "/oph-configuration/log4j.properties"
     val log4jproperties = new Properties()
     log4jproperties.load(new FileInputStream(log4jconfigFile))
@@ -75,7 +78,7 @@ object Registry {
   trait TemplatedProps extends WithCommandLineArgs {
     println("Using template variables from " + templateAttributesFile)
     lazy val settings = loadSettings
-    def loadSettings = ConfigTemplateProcessor.createSettings(templateAttributesFile, commandLineArgs)
+    def loadSettings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)(ApplicationSettingsParser(commandLineArgs))
     def templateAttributesFile: String
   }
   

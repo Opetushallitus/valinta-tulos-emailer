@@ -1,8 +1,9 @@
 package fi.vm.sade.vt.emailer
 
+import fi.vm.sade.utils.Timer
+import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.Registry
-import fi.vm.sade.vt.emailer.util.{Logging, Timer}
 import scopt.OptionParser
 
 object Main extends App {

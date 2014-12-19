@@ -1,8 +1,8 @@
 package fi.vm.sade.vt.emailer
 
+import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.{ApplicationSettingsComponent, ApplicationSettings}
 import fi.vm.sade.vt.emailer.ryhmasahkoposti.{EmailInfo, GroupEmail, GroupEmailComponent}
-import fi.vm.sade.vt.emailer.util.Logging
 import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanottopostiComponent}
 
 trait MailerComponent {

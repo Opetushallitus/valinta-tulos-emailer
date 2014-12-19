@@ -2,6 +2,9 @@ package fi.vm.sade.vt.emailer.util
 
 import java.nio.file.{Files, Paths}
 
+import fi.vm.sade.utils.slf4j.Logging
+import fi.vm.sade.utils.tcp.PortChecker
+
 object ValintatulosServiceRunner extends Logging {
   import scala.sys.process._
 

@@ -1,28 +1,9 @@
 package fi.vm.sade.vt.emailer.config
 
-import java.io.File
-
 import com.typesafe.config._
 import fi.vm.sade.vt.emailer.CommandLineArgs
-import fi.vm.sade.vt.emailer.util.Logging
 
-import scala.collection.JavaConversions._
-
-object ApplicationSettings extends Logging {
-  def loadSettings(fileLocation: String, commandLineArgs: CommandLineArgs): ApplicationSettings = {
-    val configFile = new File(fileLocation)
-    if (configFile.exists()) {
-      logger.info("Using configuration file " + configFile)
-      val settings: Config = ConfigFactory.load(ConfigFactory.parseFile(configFile))
-      val applicationSettings = new ApplicationSettings(settings, commandLineArgs)
-      applicationSettings
-    } else {
-      throw new RuntimeException("Configuration file not found: " + fileLocation)
-    }
-  }
-}
-
-class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs) {
+case class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs) extends fi.vm.sade.utils.config.ApplicationSettings(config) {
   val casUrl = config.getString("cas.url")
   val groupEmailCasUrl = config.getString("ryhmasahkoposti.cas.service")
   val groupEmailCasUsername = config.getString("ryhmasahkoposti.cas.username")
@@ -33,17 +14,10 @@ class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs) {
   val emailBatchSize = config.getInt("ryhmasahkoposti.service.batch.size")
   val recipientBatchSize = config.getInt("valinta-tulos-service.batch.size")
   val testMode = commandLineArgs.test
+}
 
-  def withOverride(keyValuePair : (String, String)) = {
-    new ApplicationSettings(config.withValue(keyValuePair._1, ConfigValueFactory.fromAnyRef(keyValuePair._2)), commandLineArgs)
-  }
-
-  def toProperties = {
-    val keys = config.entrySet().toList.map(_.getKey)
-    keys.map { key =>
-      (key, config.getString(key))
-    }.toMap
-  }
+case class ApplicationSettingsParser(commandLineArgs: CommandLineArgs) extends fi.vm.sade.utils.config.ApplicationSettingsParser[ApplicationSettings] {
+  override def parse(config: Config) = ApplicationSettings(config, commandLineArgs)
 }
 
 trait ApplicationSettingsComponent {
