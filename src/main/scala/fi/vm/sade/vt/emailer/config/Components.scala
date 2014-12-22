@@ -1,8 +1,8 @@
 package fi.vm.sade.vt.emailer.config
 
+import fi.vm.sade.groupemailer.{GroupEmailService, GroupEmailComponent}
 import fi.vm.sade.vt.emailer.MailerComponent
 import fi.vm.sade.vt.emailer.config.Registry.StubbedExternalDeps
-import fi.vm.sade.vt.emailer.ryhmasahkoposti.{GroupEmailService, GroupEmailComponent}
 import fi.vm.sade.vt.emailer.valintatulos.VastaanottopostiComponent
 
 
@@ -11,7 +11,7 @@ trait Components extends GroupEmailComponent with VastaanottopostiComponent with
 
   private def configureGroupEmailService: GroupEmailService = this match {
     case x: StubbedExternalDeps => new FakeGroupEmailService
-    case _ => new RemoteGroupEmailService
+    case _ => new RemoteGroupEmailService(settings)
   }
 
   override val groupEmailService: GroupEmailService = configureGroupEmailService
