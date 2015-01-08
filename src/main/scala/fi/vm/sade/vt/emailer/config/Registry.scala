@@ -52,7 +52,7 @@ object Registry {
     }
 
     def lastEmailSize() = groupEmailService match {
-      case x: FakeGroupEmailService => x.getLastEmailSize()
+      case x: FakeGroupEmailService => x.getLastEmailSize
       case _ => new IllegalAccessError("getLastEmailSize error")
     }
 
