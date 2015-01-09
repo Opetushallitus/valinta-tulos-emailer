@@ -20,10 +20,12 @@ trait VastaanottopostiComponent {
     def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
         .param("limit", settings.recipientBatchSize.toString)
-      reciepientBatchRequest.response() match {
-        case Some(jsonString) => parse(jsonString).extract[List[VastaanotettavuusIlmoitus]]
-        case _ => {
-          logger.error("Couldn't not connect to "+settings.vastaanottopostiUrl)
+
+      reciepientBatchRequest.responseWithHeaders() match {
+        case (status, _, body) if status >= 200 && status < 300 => parse(body).extract[List[VastaanotettavuusIlmoitus]]
+        case (status, _, body)  => {
+          logger.error(s"Couldn't not connect to: ${settings.vastaanottopostiUrl}")
+          logger.error(s"Fetching recipient batch failed with status: $status and body: $body")
           List()
         }
       }
@@ -33,7 +35,7 @@ trait VastaanottopostiComponent {
       val reciepts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
       val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts)))
       result.responseWithHeaders() match {
-        case (status, _, _) if status == 200 => true
+        case (status, _, _) if status >= 200 && status < 300 => true
         case (status, _, body) => {
           logger.error(s"Sending confirmation failed with status: $status and body: $body")
           false
