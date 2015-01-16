@@ -44,6 +44,7 @@ object Registry {
   }
 
   class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps {
+    implicit val settingsParser = ApplicationSettingsParser(commandLineArgs)
     override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
         "http://localhost:8097/valinta-tulos-service/vastaanottoposti")
