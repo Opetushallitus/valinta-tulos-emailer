@@ -19,6 +19,7 @@ object Registry {
       case "templated" => new LocalTestingWithTemplatedVars(commandLineArgs)
       case "dev" => new Dev(commandLineArgs)
       case "it" => new IT(commandLineArgs)
+      case "localvt" => new LocalVT(commandLineArgs)
       case name => throw new IllegalArgumentException("Unknown value for vtemailer.profile: " + name)
     }
   }
@@ -40,6 +41,12 @@ object Registry {
     override def start {
       ValintatulosServiceRunner.start
     }
+  }
+
+  class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps {
+    override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
+      .withOverride("valinta-tulos-service.vastaanottoposti.url",
+        "http://localhost:8097/valinta-tulos-service/vastaanottoposti")
   }
 
   /**
