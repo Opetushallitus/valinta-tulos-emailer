@@ -1,8 +1,8 @@
 package fi.vm.sade.vt.emailer
 
-import fi.vm.sade.groupemailer.{Recipient, EmailInfo, GroupEmail, GroupEmailComponent}
+import fi.vm.sade.groupemailer.{EmailInfo, GroupEmail, GroupEmailComponent, Recipient}
 import fi.vm.sade.utils.slf4j.Logging
-import fi.vm.sade.vt.emailer.config.{ApplicationSettingsComponent, ApplicationSettings}
+import fi.vm.sade.vt.emailer.config.ApplicationSettingsComponent
 import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanottopostiComponent}
 
 trait MailerComponent {
@@ -47,16 +47,23 @@ trait MailerComponent {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_))
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Batch size ${recipients.size}")
-        groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email"))) match {
-          case Some(id) => {
-            if (vastaanottopostiService.sendConfirmation(batch)) {
-              logger.info(s"Succesfully confirmed batch id: $id")
-            } else {
-              logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
+        try {
+          groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email"))) match {
+            case Some(id) => {
+              if (vastaanottopostiService.sendConfirmation(batch)) {
+                logger.info(s"Succesfully confirmed batch id: $id")
+              } else {
+                logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
+              }
+              Some(id)
             }
-            Some(id)
+            case _ => None
           }
-          case _ => None
+        } catch {
+          case e => {
+            logger.error("Group email sending error "+e)
+            None
+          }
         }
       } else {
         logger.info(s"Not actually sending anything, test mode was set. Batch size ${recipients.size}")
@@ -64,4 +71,5 @@ trait MailerComponent {
       }
     }
   }
+
 }
