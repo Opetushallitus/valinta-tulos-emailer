@@ -17,10 +17,11 @@ trait MailerComponent {
 
     private def collectAndSend(batchNr: Int = 0, ids: List[String] = List(), batch: List[VastaanotettavuusIlmoitus] = List()): List[String] = {
       def sendAndConfirm(currentBatch: List[VastaanotettavuusIlmoitus]): List[String] = {
-        sendBatch(currentBatch) match {
-          case Some(id) => ids :+ id
-          case _ => ids
-        }
+        val groupedByLang = currentBatch.groupBy(v => v.asiointikieli)
+        val sentIds : List[String] = groupedByLang.map { case (language, ilmoitukset) => {
+          sendBatch(ilmoitukset, language)
+        }}.toList.flatten
+        ids ++ sentIds
       }
       val newBatch = vastaanottopostiService.fetchRecipientBatch
       if (newBatch.size > 0) {
@@ -43,12 +44,12 @@ trait MailerComponent {
       }
     }
 
-    private def sendBatch(batch: List[VastaanotettavuusIlmoitus]): Option[String] = {
+    private def sendBatch(batch: List[VastaanotettavuusIlmoitus], language: String): Option[String] = {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_))
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Batch size ${recipients.size}")
         try {
-          groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email"))) match {
+          groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email", language))) match {
             case Some(id) => {
               if (vastaanottopostiService.sendConfirmation(batch)) {
                 logger.info(s"Succesfully confirmed batch id: $id")
@@ -60,7 +61,7 @@ trait MailerComponent {
             case _ => None
           }
         } catch {
-          case e => {
+          case e : Exception => {
             logger.error("Group email sending error "+e)
             None
           }
