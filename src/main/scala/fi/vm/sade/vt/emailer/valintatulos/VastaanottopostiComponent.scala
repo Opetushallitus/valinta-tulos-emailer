@@ -33,7 +33,7 @@ trait VastaanottopostiComponent {
 
     def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean = {
       val reciepts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
-      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts)))
+      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts))).header("Content-type", "application/json")
       result.responseWithHeaders() match {
         case (status, _, _) if status >= 200 && status < 300 => true
         case (status, _, body) => {
