@@ -1,18 +1,16 @@
 package fi.vm.sade.vt.emailer
 
-import java.io.{ByteArrayOutputStream, ByteArrayInputStream}
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.Registry
-import fi.vm.sade.vt.emailer.config.Registry.{IT, Registry}
+import fi.vm.sade.vt.emailer.config.Registry.{LocalVT, Registry}
 import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
-import org.apache.commons.io.IOUtils
 import org.apache.log4j._
 import org.apache.log4j.spi.LoggingEvent
 import org.scalatra.test.HttpComponentsClient
 import org.specs2.mutable._
 
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
-  lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("it"), CommandLineArgs())
+  lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("localvt"), CommandLineArgs())
 
   override def baseUrl: String = "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service"
 
@@ -21,10 +19,9 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
     put("util/fixtures/generate?hakemuksia=3&hakukohteita=2") {
       val appender: TestAppender = new TestAppender
       Logger.getRootLogger.addAppender(appender)
-      registry.mailer.sendMail.nonEmpty
-      registry.asInstanceOf[IT].lastEmailSize() equals(3)
+      registry.mailer.sendMail
+      registry.asInstanceOf[LocalVT].lastEmailSize equals 3
       appender.errors must_== List()
-      success
     }
   }
 }

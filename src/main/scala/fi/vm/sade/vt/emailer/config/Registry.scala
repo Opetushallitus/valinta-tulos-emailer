@@ -43,17 +43,20 @@ object Registry {
     }
   }
 
-  class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps {
-    implicit val settingsParser = ApplicationSettingsParser(commandLineArgs)
-    override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
-      .withOverride("valinta-tulos-service.vastaanottoposti.url",
-        "http://localhost:8097/valinta-tulos-service/vastaanottoposti")
+  /**
+   *  IT (integration test) profiles.
+   */
+  class IT(val commandLineArgs: CommandLineArgs) extends Registry with ExampleTemplatedProps with StubbedExternalDeps {
+    def lastEmailSize() = groupEmailService match {
+      case x: FakeGroupEmailService => x.getLastEmailSize
+      case _ => new IllegalAccessError("getLastEmailSize error")
+    }
   }
 
   /**
-   *  IT (integration test) profiles. Uses embedded mongo database and stubbed external deps
+   *  LocalVT (integration test) profile. Uses local valinta-tulos-service
    */
-  class IT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedExternalDeps {
+  class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedGroupEmail {
 
     override def start {
       ValintatulosServiceRunner.start
@@ -94,7 +97,9 @@ object Registry {
     val commandLineArgs: CommandLineArgs
   }
 
-  trait StubbedExternalDeps
+  trait StubbedGroupEmail
+
+  trait StubbedExternalDeps extends StubbedGroupEmail
 
   trait Registry extends Components {
     val settings: ApplicationSettings
