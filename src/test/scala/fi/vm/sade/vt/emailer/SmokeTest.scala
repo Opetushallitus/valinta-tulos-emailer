@@ -1,9 +1,13 @@
 package fi.vm.sade.vt.emailer
 
+import java.io.{ByteArrayOutputStream, ByteArrayInputStream}
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.{IT, Registry}
 import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
+import org.apache.commons.io.IOUtils
+import org.apache.log4j._
+import org.apache.log4j.spi.LoggingEvent
 import org.scalatra.test.HttpComponentsClient
 import org.specs2.mutable._
 
@@ -12,13 +16,29 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
 
   override def baseUrl: String = "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service"
 
-  "Generate test fixtures and retrieve them" should {
-    "PUT /util/fixtures/generate" in {
-      registry.start
-      put("util/fixtures/generate?hakemuksia=3&hakukohteita=2") {
-        registry.mailer.sendMail.nonEmpty
-        registry.asInstanceOf[IT].lastEmailSize() equals(3)
-      }
+  "Fetch, send and confirm batch" in {
+    registry.start
+    put("util/fixtures/generate?hakemuksia=3&hakukohteita=2") {
+      val appender: TestAppender = new TestAppender
+      Logger.getRootLogger.addAppender(appender)
+      registry.mailer.sendMail.nonEmpty
+      registry.asInstanceOf[IT].lastEmailSize() equals(3)
+      appender.errors must_== List()
+      success
     }
   }
+}
+
+class TestAppender extends AppenderSkeleton {
+  private var events: List[LoggingEvent] = Nil
+
+  def errors = events.filter { event => List(Level.ERROR, Level.FATAL).contains(event.getLevel)}.map(_.getMessage)
+
+  override def append(event: LoggingEvent): Unit = {
+    events = events ++ List(event)
+  }
+
+  override def requiresLayout() = false
+
+  override def close() {}
 }
