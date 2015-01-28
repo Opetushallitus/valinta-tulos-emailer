@@ -51,6 +51,13 @@ object Registry {
       case x: FakeGroupEmailService => x.getLastEmailSize
       case _ => new IllegalAccessError("getLastEmailSize error")
     }
+
+    def maxResults = fakeVastaanottopostiService.maxResults
+    def lastConfirmedAmount = fakeVastaanottopostiService.confirmAmount
+
+    def fakeVastaanottopostiService: FakeVastaanottopostiService = {
+      vastaanottopostiService.asInstanceOf[FakeVastaanottopostiService]
+    }
   }
 
   /**

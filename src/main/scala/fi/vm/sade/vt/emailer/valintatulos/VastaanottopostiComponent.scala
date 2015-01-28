@@ -2,11 +2,13 @@ package fi.vm.sade.vt.emailer.valintatulos
 
 import fi.vm.sade.utils.http.DefaultHttpClient
 import fi.vm.sade.utils.slf4j.Logging
-import fi.vm.sade.vt.emailer.config.{ApplicationSettingsComponent, ApplicationSettings}
+import fi.vm.sade.vt.emailer.config.ApplicationSettingsComponent
 import fi.vm.sade.vt.emailer.json.JsonFormats
+import fi.vm.sade.vt.emailer.util.RandomDataGenerator._
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
+import scala.util.Random
 import scalaj.http.HttpOptions
 
 trait VastaanottopostiComponent {
@@ -14,7 +16,7 @@ trait VastaanottopostiComponent {
 
   val vastaanottopostiService: VastaanottopostiService
 
-  class VastaanottopostiService extends JsonFormats with Logging {
+  class RemoteVastaanottopostiService extends VastaanottopostiService with JsonFormats with Logging {
     private val httpOptions = Seq(HttpOptions.connTimeout(10000), HttpOptions.readTimeout(90000))
 
     def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
@@ -43,4 +45,35 @@ trait VastaanottopostiComponent {
       }
     }
   }
+
+  class FakeVastaanottopostiService extends VastaanottopostiService {
+    private[this] var _confirmAmount: Int = 0
+    private var sentAmount = 0
+    val maxResults: Int = settings.emailBatchSize + 1
+    val recipients = List.fill(maxResults)(randomVastaanotettavuusIlmoitus)
+
+    def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
+      if(sentAmount < maxResults) {
+        val guys = recipients.slice(sentAmount, sentAmount + settings.recipientBatchSize)
+        sentAmount += guys.size
+        guys
+      } else {
+        List()
+      }
+    }
+
+    def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean = {
+      _confirmAmount += recipients.size
+      true
+    }
+
+    def randomVastaanotettavuusIlmoitus = new VastaanotettavuusIlmoitus(randomOid, randomOid, randomLang, randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomOidList)
+    def randomOidList = List.fill(Random.nextInt(10) +1)(randomOid)
+    def confirmAmount: Int = _confirmAmount
+  }
+}
+
+trait VastaanottopostiService {
+  def fetchRecipientBatch: List[VastaanotettavuusIlmoitus]
+  def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean
 }

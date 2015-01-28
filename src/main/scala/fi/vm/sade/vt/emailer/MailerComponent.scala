@@ -10,7 +10,7 @@ trait MailerComponent {
 
   val mailer: Mailer
 
-  class Mailer extends Logging {
+  class MailerImpl extends Mailer with Logging {
     def sendMail: List[String] = {
       collectAndSend()
     }
@@ -72,5 +72,8 @@ trait MailerComponent {
       }
     }
   }
+}
 
+trait Mailer {
+  def sendMail: List[String]
 }
