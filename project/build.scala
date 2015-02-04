@@ -33,9 +33,11 @@ object ValintatulosEmailerBuild extends Build {
       resolvers += Classpaths.typesafeReleases,
       resolvers += "oph-sade-artifactory-releases" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-release-local",
       resolvers += "oph-sade-artifactory-snapshots" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-snapshot-local",
+      testFrameworks := Seq(TestFrameworks.Specs2),
       parallelExecution in Test := false,
       testOptions in Test := Seq(Tests.Filter(s => s.endsWith("Test") || s.endsWith("Spec"))),
       testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
     )
   )
+  .disablePlugins(plugins.JUnitXmlReportPlugin)
 }
