@@ -35,7 +35,7 @@ object ValintatulosEmailerBuild extends Build {
       resolvers += "oph-sade-artifactory-snapshots" at "https://artifactory.oph.ware.fi/artifactory/oph-sade-snapshot-local",
       parallelExecution in Test := false,
       testOptions in Test := Seq(Tests.Filter(s => s.endsWith("Test") || s.endsWith("Spec"))),
-      testOptions in Test += Tests.Argument("junitxml", "console")
+      testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
     )
   )
 }
