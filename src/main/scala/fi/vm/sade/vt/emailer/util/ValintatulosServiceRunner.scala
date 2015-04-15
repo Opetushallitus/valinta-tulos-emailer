@@ -20,8 +20,8 @@ object ValintatulosServiceRunner extends Logging {
           logger.info("Starting valinta-tulos-service from " + path + " on port "+ valintatulosPort)
 
           val cwd = new java.io.File(path)
-          var javaHome = System.getProperty("JAVA8_HOME", "")
-          if (javaHome.contains("{")) {
+          var javaHome = System.getProperty("JAVA8_HOME", System.getenv("JAVA_HOME"))
+          if (javaHome == null || javaHome.contains("{")) {
             javaHome ="";
           }
           val mvn = System.getProperty("mvn", "mvn");
