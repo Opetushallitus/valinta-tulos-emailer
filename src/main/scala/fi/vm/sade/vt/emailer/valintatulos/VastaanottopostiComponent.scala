@@ -17,7 +17,7 @@ trait VastaanottopostiComponent {
   val vastaanottopostiService: VastaanottopostiService
 
   class RemoteVastaanottopostiService extends VastaanottopostiService with JsonFormats with Logging {
-    private val httpOptions = Seq(HttpOptions.connTimeout(10000), HttpOptions.readTimeout(90000))
+    private val httpOptions = Seq(HttpOptions.connTimeout(10000), HttpOptions.readTimeout(300000))
 
     def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
