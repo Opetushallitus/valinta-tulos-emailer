@@ -26,6 +26,8 @@ trait MailerComponent {
         ids ++ sentIds
       }
       val newBatch = vastaanottopostiService.fetchRecipientBatch
+      newBatch.foreach(ilmoitus => logger.info("Found " + ilmoitus.toString))
+
       if (newBatch.size > 0) {
 
         val currentBatch = batch ::: newBatch
