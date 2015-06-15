@@ -17,7 +17,9 @@ trait MailerComponent {
 
     private def collectAndSend(batchNr: Int = 0, ids: List[String] = List(), batch: List[VastaanotettavuusIlmoitus] = List()): List[String] = {
       def sendAndConfirm(currentBatch: List[VastaanotettavuusIlmoitus]): List[String] = {
-        val groupedByLang = currentBatch.groupBy(v => v.asiointikieli)
+        val groupedByLang: Map[String, List[VastaanotettavuusIlmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
+        groupedByLang.foreach { case (kieli, ilmoitukset) => logger.info("Kieli: " + kieli + ", ilmoituksia " + ilmoitukset.size) }
+
         val sentIds : List[String] = groupedByLang.map { case (language, ilmoitukset) => {
           sendBatch(ilmoitukset, language)
         }}.toList.flatten
@@ -25,6 +27,7 @@ trait MailerComponent {
       }
       val newBatch = vastaanottopostiService.fetchRecipientBatch
       if (newBatch.size > 0) {
+
         val currentBatch = batch ::: newBatch
         if (currentBatch.size >= settings.emailBatchSize) {
           logger.info(s"Sending batch nr. $batchNr")
