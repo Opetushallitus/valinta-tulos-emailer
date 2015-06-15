@@ -24,7 +24,10 @@ trait VastaanottopostiComponent {
         .param("limit", settings.recipientBatchSize.toString)
 
       reciepientBatchRequest.responseWithHeaders() match {
-        case (status, _, body) if status >= 200 && status < 300 => parse(body).extract[List[VastaanotettavuusIlmoitus]]
+        case (status, _, body) if status >= 200 && status < 300 => {
+          logger.info(s"Received from valinta-tulos-service: $body")
+          parse(body).extract[List[VastaanotettavuusIlmoitus]]
+        }
         case (status, _, body)  => {
           logger.error(s"Couldn't not connect to: ${settings.vastaanottopostiUrl}")
           logger.error(s"Fetching recipient batch failed with status: $status and body: $body")
