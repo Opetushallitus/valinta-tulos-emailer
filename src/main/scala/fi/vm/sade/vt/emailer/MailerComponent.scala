@@ -12,10 +12,10 @@ trait MailerComponent {
 
   class MailerImpl extends Mailer with Logging {
     def sendMail: List[String] = {
-      collectAndSend()
+      collectAndSend(0, List.empty, List.empty)
     }
 
-    private def collectAndSend(batchNr: Int = 0, ids: List[String] = List(), batch: List[VastaanotettavuusIlmoitus] = List()): List[String] = {
+    private def collectAndSend(batchNr: Int, ids: List[String], batch: List[VastaanotettavuusIlmoitus]): List[String] = {
       def sendAndConfirm(currentBatch: List[VastaanotettavuusIlmoitus]): List[String] = {
         val groupedByLang: Map[String, List[VastaanotettavuusIlmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
         groupedByLang.foreach { case (kieli, ilmoitukset) => logger.info("Kieli: " + kieli + ", ilmoituksia " + ilmoitukset.size) }
@@ -34,7 +34,7 @@ trait MailerComponent {
         if (currentBatch.size >= settings.emailBatchSize) {
           logger.info(s"Email batch size exceeded. Sending batch nr. $batchNr")
           val batchIds: List[String] = sendAndConfirm(currentBatch)
-          collectAndSend(batchNr + 1, batchIds)
+          collectAndSend(batchNr + 1, batchIds, List.empty)
         } else {
           logger.info("Email batch size not exceeded")
           collectAndSend(batchNr, ids, currentBatch)
