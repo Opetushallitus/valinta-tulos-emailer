@@ -25,18 +25,21 @@ trait MailerComponent {
         }}.toList.flatten
         ids ++ sentIds
       }
+      logger.info("Fetching recipients from valinta-tulos-service")
       val newBatch = vastaanottopostiService.fetchRecipientBatch
       logger.info(s"Found ${newBatch.size} to send")
       newBatch.foreach(ilmoitus => logger.info("Found " + ilmoitus.toString))
 
       if (newBatch.size > 0) {
         val currentBatch = batch ::: newBatch
-        if (currentBatch.size >= settings.emailBatchSize) {
+        val currentBatchSize: Int = currentBatch.size
+        val sendBatchSize: Int = settings.emailBatchSize
+        if (currentBatchSize >= sendBatchSize) {
           logger.info(s"Email batch size exceeded. Sending batch nr. $batchNr")
           val batchIds: List[String] = sendAndConfirm(currentBatch)
           collectAndSend(batchNr + 1, batchIds, List.empty)
         } else {
-          logger.info("Email batch size not exceeded")
+          logger.info(s"Email batch size not exceeded. ($currentBatchSize < $sendBatchSize)")
           collectAndSend(batchNr, ids, currentBatch)
         }
       } else {
