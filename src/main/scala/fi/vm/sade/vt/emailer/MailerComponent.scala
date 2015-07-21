@@ -18,8 +18,6 @@ trait MailerComponent {
     private def collectAndSend(batchNr: Int, ids: List[String], batch: List[VastaanotettavuusIlmoitus]): List[String] = {
       def sendAndConfirm(currentBatch: List[VastaanotettavuusIlmoitus]): List[String] = {
         val groupedByLang: Map[String, List[VastaanotettavuusIlmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
-        groupedByLang.foreach { case (kieli, ilmoitukset) => logger.info("Kieli: " + kieli + ", ilmoituksia " + ilmoitukset.size) }
-
         val sentIds : List[String] = groupedByLang.map { case (language, ilmoitukset) => {
           sendBatch(ilmoitukset, language)
         }}.toList.flatten
@@ -44,7 +42,7 @@ trait MailerComponent {
         }
       } else {
         if (batch.size > 0) {
-          logger.info("Last batch")
+          logger.info("Last batch fetched")
           sendAndConfirm(batch)
         } else {
           logger.info("Batch size was 0, stopping")
@@ -56,7 +54,7 @@ trait MailerComponent {
     private def sendBatch(batch: List[VastaanotettavuusIlmoitus], language: String): Option[String] = {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_))
       if (!settings.testMode) {
-        logger.info(s"Starting to send batch. Batch size ${recipients.size}")
+        logger.info(s"Starting to send batch. Language $language. Batch size ${recipients.size}")
         try {
           groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email", language))) match {
             case Some(id) => {
