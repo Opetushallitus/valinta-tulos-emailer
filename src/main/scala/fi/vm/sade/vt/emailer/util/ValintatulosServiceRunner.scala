@@ -10,7 +10,7 @@ object ValintatulosServiceRunner extends Logging {
 
   val valintatulosPort = sys.props.getOrElse("valintatulos.port", PortChecker.findFreeLocalPort.toString).toInt
 
-  val searchPaths = List("./valinta-tulos-service", "../valinta-tulos-service")
+  val searchPaths = List("./valinta-tulos-service/valinta-tulos-service", "../valinta-tulos-service/valinta-tulos-service")
   var currentRunner: Option[scala.sys.process.Process] = None
 
   def start = this.synchronized {
