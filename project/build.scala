@@ -22,8 +22,13 @@ object ValintatulosEmailerBuild extends Build {
         "fi.vm.sade" %% "scala-group-emailer" % "feature-vastaanottomaili-SNAPSHOT",
         "org.slf4j" % "slf4j-log4j12" % "1.7.7",
         "junit" % "junit" % "4.11" % "test",
-        "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test",
-        "org.scalatra" %% "scalatra-json" % ScalatraVersion % "test"
+        "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test" excludeAll(
+            ExclusionRule(organization = "org.specs2")
+        ),
+        "org.scalatra" %% "scalatra-json" % ScalatraVersion % "test",
+        "org.specs2" %% "specs2" % "2.4.16" % "test" excludeAll(
+            ExclusionRule(organization = "org.scala-lang.modules")
+        )
       ),
       mainClass in oneJar := Some("fi.vm.sade.vt.emailer.Main"),
       artifact in oneJar <<= moduleName(Artifact(_)),
