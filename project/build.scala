@@ -7,7 +7,7 @@ object ValintatulosEmailerBuild extends Build {
   val Name = "valinta-tulos-emailer"
   val Version = "0.1.0-SNAPSHOT"
   val ScalaVersion = "2.11.4"
-  val ScalatraVersion = "2.3.0.RC3"
+  val ScalatraVersion = "2.3.0"
 
   lazy val project = Project(
     "valinta-tulos-emailer",
