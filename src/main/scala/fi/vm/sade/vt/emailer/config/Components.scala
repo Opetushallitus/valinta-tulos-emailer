@@ -11,7 +11,7 @@ trait Components extends GroupEmailComponent with VastaanottopostiComponent with
 
   private def configureGroupEmailService: GroupEmailService = this match {
     case x: StubbedGroupEmail => new FakeGroupEmailService
-    case _ => new RemoteGroupEmailService(settings)
+    case _ => new RemoteGroupEmailService(settings, "valinta-tulos-emailer")
   }
 
   private def configureVastaanottopostiService: VastaanottopostiService = this match {

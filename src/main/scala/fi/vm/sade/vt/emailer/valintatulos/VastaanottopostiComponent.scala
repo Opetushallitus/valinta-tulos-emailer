@@ -70,8 +70,12 @@ trait VastaanottopostiComponent {
       true
     }
 
-    def randomVastaanotettavuusIlmoitus = new VastaanotettavuusIlmoitus(randomOid, randomOid, randomLang, randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomOidList)
-    def randomOidList = List.fill(Random.nextInt(10) +1)(randomOid)
+    def randomVastaanotettavuusIlmoitus = new VastaanotettavuusIlmoitus(randomOid, randomOid, randomLang,
+      randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomHakukohdeList,
+      Haku(randomOid, Map("kieli_fi" -> "Testihaku")))
+    def randomHakukohdeList = List.fill(Random.nextInt(10) +1)(randomOid).map(oid => Hakukohde(
+      oid, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> "Testihakukohde"), Map("fi" -> "Testitarjoaja")
+    ))
     def confirmAmount: Int = _confirmAmount
   }
 }
