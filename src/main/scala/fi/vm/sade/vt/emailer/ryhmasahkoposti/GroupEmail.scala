@@ -40,7 +40,7 @@ object VTRecipient {
         .filter{case (key, value) => value.isDefined && !value.get.isEmpty}
         .map{case (key, value) => (fixKey(key), value)}
 
-      translations.get(language).orElse(translations.get("fi")).getOrElse(translations.head._2).get
+      translations.get(language.toLowerCase).orElse(translations.get("fi")).getOrElse(translations.head._2).get
     }
 
     val replacements = List(
