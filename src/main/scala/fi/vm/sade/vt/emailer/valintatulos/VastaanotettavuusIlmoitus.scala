@@ -16,11 +16,11 @@ case class VastaanotettavuusIlmoitus(
 case class Hakukohde(
   oid: String,
   ehdollisestiHyvaksyttavissa: Boolean,
-  hakukohteenNimet: Map[String, String],
-  tarjoajaNimet: Map[String, String]
+  hakukohteenNimet: Map[String, Option[String]],
+  tarjoajaNimet: Map[String, Option[String]]
 )
 
 case class Haku(
  oid: String,
- nimi: Map[String, String]
+ nimi: Map[String, Option[String]]
 )

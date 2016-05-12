@@ -32,13 +32,15 @@ object VTEmailerReplacement {
 object VTRecipient {
   def apply(valintatulosRecipient: valintatulos.VastaanotettavuusIlmoitus, language: String): Recipient = {
 
-    def getTranslation(rawTranslations: Map[String, String]) = {
+    def getTranslation(rawTranslations: Map[String, Option[String]]) = {
 
       def fixKey(key: String) = key.toLowerCase.replace("kieli_", "")
 
-      val translations = rawTranslations.map{case (key, value) => (fixKey(key), value)}
+      val translations = rawTranslations
+        .filter{case (key, value) => value.isDefined && !value.get.isEmpty}
+        .map{case (key, value) => (fixKey(key), value)}
 
-      translations.get(language).orElse(translations.get("fi")).getOrElse(translations.head._2)
+      translations.get(language).orElse(translations.get("fi")).getOrElse(translations.head._2).get
     }
 
     val replacements = List(
