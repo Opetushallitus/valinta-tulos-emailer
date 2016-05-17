@@ -19,7 +19,7 @@ object ValintatulosEmailerBuild extends Build {
       scalaVersion := ScalaVersion,
       libraryDependencies ++= Seq(
         "com.github.scopt" %% "scopt" % "3.3.0",
-        "fi.vm.sade" %% "scala-group-emailer" % "0.1.0",
+        "fi.vm.sade" %% "scala-group-emailer" % "0.2.0-SNAPSHOT",
         "org.slf4j" % "slf4j-log4j12" % "1.7.7",
         "junit" % "junit" % "4.11" % "test",
         "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test" excludeAll(
