@@ -6,6 +6,6 @@ case class LahetysKuittaus(hakemusOid: String,
 
 object LahetysKuittaus {
   def apply(recipient: VastaanotettavuusIlmoitus): LahetysKuittaus = {
-    new LahetysKuittaus(recipient.hakemusOid, recipient.hakukohteet, List("email"))
+    new LahetysKuittaus(recipient.hakemusOid, recipient.hakukohteet.map(_.oid), List("email"))
   }
 }

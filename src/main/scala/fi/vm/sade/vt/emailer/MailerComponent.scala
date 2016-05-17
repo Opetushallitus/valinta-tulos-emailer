@@ -52,7 +52,7 @@ trait MailerComponent {
     }
 
     private def sendBatch(batch: List[VastaanotettavuusIlmoitus], language: String): Option[String] = {
-      val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_))
+      val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_, language))
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Language $language. Batch size ${recipients.size}")
         try {
