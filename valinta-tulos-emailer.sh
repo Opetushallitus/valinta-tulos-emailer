@@ -1,5 +1,5 @@
 #!/bin/sh
-JAVA_HOME=/data00/oph/java/jdk1.7.0_45/jre
+JAVA_HOME=/data00/oph/java/jdk1.8.0_60/jre
 PATH=$PATH:$JAVA_HOME/bin
 
 user_home=/data00/oph/valinta-tulos-emailer
