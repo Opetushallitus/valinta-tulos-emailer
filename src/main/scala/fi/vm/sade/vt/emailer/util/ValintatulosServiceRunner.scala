@@ -27,7 +27,7 @@ object ValintatulosServiceRunner extends Logging {
           val mvn = System.getProperty("mvn", "mvn");
           logger.info("Using java home:" + javaHome);
 
-          val process = Process(List(mvn, "test-compile", "exec:java", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
+          val process = Process(List(mvn, "test-compile", "exec:java@local_jetty", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
 
           for (i <- 0 to 300 if PortChecker.isFreeLocalPort(valintatulosPort)) {
             Thread.sleep(1000)
