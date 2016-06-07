@@ -29,11 +29,11 @@ object ValintatulosServiceRunner extends Logging {
 
           val process = Process(List(mvn, "test-compile", "exec:java@local_jetty", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
 
-          for (i <- 0 to 300 if PortChecker.isFreeLocalPort(valintatulosPort)) {
+          for (i <- 0 to 500 if PortChecker.isFreeLocalPort(valintatulosPort)) {
             Thread.sleep(1000)
           }
           if (PortChecker.isFreeLocalPort(valintatulosPort)) {
-            throw new RuntimeException("Valinta-tulos-service did not start in 300 seconds")
+            throw new RuntimeException("Valinta-tulos-service did not start in 500 seconds")
           }
           currentRunner = Some(process)
           sys.addShutdownHook { ValintatulosServiceRunner.stop }
