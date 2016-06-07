@@ -32,6 +32,9 @@ object ValintatulosServiceRunner extends Logging {
           for (i <- 0 to 300 if PortChecker.isFreeLocalPort(valintatulosPort)) {
             Thread.sleep(1000)
           }
+          if (PortChecker.isFreeLocalPort(valintatulosPort)) {
+            throw new RuntimeException("Valinta-tulos-service did not start in 300 seconds")
+          }
           currentRunner = Some(process)
           sys.addShutdownHook { ValintatulosServiceRunner.stop }
         }
