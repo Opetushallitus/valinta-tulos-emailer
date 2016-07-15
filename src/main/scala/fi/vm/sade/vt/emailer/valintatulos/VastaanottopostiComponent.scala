@@ -19,14 +19,14 @@ trait VastaanottopostiComponent {
   class RemoteVastaanottopostiService extends VastaanottopostiService with JsonFormats with Logging {
     private val httpOptions = Seq(HttpOptions.connTimeout(10 * 1000), HttpOptions.readTimeout(60 * 60 * 1000))
 
-    def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
+    def fetchRecipientBatch: List[Ilmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
         .param("limit", settings.recipientBatchSize.toString)
 
       reciepientBatchRequest.responseWithHeaders() match {
         case (status, _, body) if status >= 200 && status < 300 => {
           logger.info(s"Received from valinta-tulos-service: $body")
-          parse(body).extract[List[VastaanotettavuusIlmoitus]]
+          parse(body).extract[List[Ilmoitus]]
         }
         case (status, _, body)  => {
           logger.error(s"Couldn't not connect to: ${settings.vastaanottopostiUrl}")
@@ -36,7 +36,7 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean = {
+    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
       val reciepts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
       val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts))).header("Content-type", "application/json")
       result.responseWithHeaders() match {
@@ -53,9 +53,9 @@ trait VastaanottopostiComponent {
     private[this] var _confirmAmount: Int = 0
     private var sentAmount = 0
     val maxResults: Int = settings.emailBatchSize + 1
-    val recipients = List.fill(maxResults)(randomVastaanotettavuusIlmoitus)
+    val recipients = List.fill(maxResults)(randomIlmoitus)
 
-    def fetchRecipientBatch: List[VastaanotettavuusIlmoitus] = {
+    def fetchRecipientBatch: List[Ilmoitus] = {
       if(sentAmount < maxResults) {
         val guys = recipients.slice(sentAmount, sentAmount + settings.recipientBatchSize)
         sentAmount += guys.size
@@ -65,22 +65,22 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean = {
+    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
       _confirmAmount += recipients.size
       true
     }
 
-    def randomVastaanotettavuusIlmoitus = new VastaanotettavuusIlmoitus(randomOid, randomOid, randomLang,
+    def randomIlmoitus = new Ilmoitus(randomOid, randomOid, randomLang,
       randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomHakukohdeList,
-      Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))))
+      Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))), LahetysSyy.vastaanottoilmoitus)
     def randomHakukohdeList = List.fill(Random.nextInt(10) +1)(randomOid).map(oid => Hakukohde(
-      oid, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja"))
+      oid, lahetysSyy=LahetysSyy.vastaanottoilmoitus, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja"))
     ))
     def confirmAmount: Int = _confirmAmount
   }
 }
 
 trait VastaanottopostiService {
-  def fetchRecipientBatch: List[VastaanotettavuusIlmoitus]
-  def sendConfirmation(recipients: List[VastaanotettavuusIlmoitus]): Boolean
+  def fetchRecipientBatch: List[Ilmoitus]
+  def sendConfirmation(recipients: List[Ilmoitus]): Boolean
 }

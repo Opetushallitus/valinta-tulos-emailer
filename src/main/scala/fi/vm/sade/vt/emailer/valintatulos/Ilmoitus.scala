@@ -1,9 +1,8 @@
 package fi.vm.sade.vt.emailer.valintatulos
 
 
-import java.util.Date
-
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy.LahetysSyy
+import org.joda.time.DateTime
 
 case class Ilmoitus(
                      hakemusOid: String,
@@ -11,29 +10,37 @@ case class Ilmoitus(
                      asiointikieli: String,
                      etunimi: String,
                      email: String,
-                     deadline: Option[Date],
+                     deadline: Option[DateTime],
                      hakukohteet: List[Hakukohde],
-                     haku: Haku
+                     haku: Haku,
+                     lahetysSyy: LahetysSyy
                    )
 
 case class Hakukohde(
                       oid: String,
                       lahetysSyy: LahetysSyy,
                       ehdollisestiHyvaksyttavissa: Boolean,
-                      hakukohteenNimet: Map[String, String],
-                      tarjoajaNimet: Map[String, String]
+                      hakukohteenNimet: Map[String, Option[String]],
+                      tarjoajaNimet: Map[String, Option[String]]
                     )
 
 case class Haku(
                  oid: String,
-                 nimi: Map[String, String]
+                 nimi: Map[String, Option[String]]
                )
 
 case class LahetysKuittaus(
                             hakemusOid: String,
                             hakukohteet: List[String],
-                            mediat: List[String]
+                            mediat: List[String],
+                            lahetysSyy: LahetysSyy
                           )
+
+object LahetysKuittaus {
+  def apply(recipient: Ilmoitus): LahetysKuittaus = {
+    new LahetysKuittaus(recipient.hakemusOid, recipient.hakukohteet.map(_.oid), List("email"), recipient.lahetysSyy)
+  }
+}
 
 object LahetysSyy {
   type LahetysSyy = String

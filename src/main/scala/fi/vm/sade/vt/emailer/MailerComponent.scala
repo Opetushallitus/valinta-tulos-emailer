@@ -3,7 +3,7 @@ package fi.vm.sade.vt.emailer
 import fi.vm.sade.groupemailer.{EmailInfo, GroupEmail, GroupEmailComponent, Recipient}
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.ApplicationSettingsComponent
-import fi.vm.sade.vt.emailer.valintatulos.{VastaanotettavuusIlmoitus, VastaanottopostiComponent}
+import fi.vm.sade.vt.emailer.valintatulos.{Ilmoitus, VastaanottopostiComponent}
 
 trait MailerComponent {
   this: GroupEmailComponent with VastaanottopostiComponent with ApplicationSettingsComponent =>
@@ -15,9 +15,9 @@ trait MailerComponent {
       collectAndSend(0, List.empty, List.empty)
     }
 
-    private def collectAndSend(batchNr: Int, ids: List[String], batch: List[VastaanotettavuusIlmoitus]): List[String] = {
-      def sendAndConfirm(currentBatch: List[VastaanotettavuusIlmoitus]): List[String] = {
-        val groupedByLang: Map[String, List[VastaanotettavuusIlmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
+    private def collectAndSend(batchNr: Int, ids: List[String], batch: List[Ilmoitus]): List[String] = {
+      def sendAndConfirm(currentBatch: List[Ilmoitus]): List[String] = {
+        val groupedByLang: Map[String, List[Ilmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
         val sentIds : List[String] = groupedByLang.map { case (language, ilmoitukset) => {
           sendBatch(ilmoitukset, language)
         }}.toList.flatten
@@ -51,7 +51,7 @@ trait MailerComponent {
       }
     }
 
-    private def sendBatch(batch: List[VastaanotettavuusIlmoitus], language: String): Option[String] = {
+    private def sendBatch(batch: List[Ilmoitus], language: String): Option[String] = {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_, language))
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Language $language. Batch size ${recipients.size}")

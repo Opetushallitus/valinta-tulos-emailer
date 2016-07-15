@@ -30,7 +30,7 @@ object VTEmailerReplacement {
 }
 
 object VTRecipient {
-  def apply(valintatulosRecipient: valintatulos.VastaanotettavuusIlmoitus, language: String): Recipient = {
+  def apply(valintatulosRecipient: valintatulos.Ilmoitus, language: String): Recipient = {
 
     def getTranslation(rawTranslations: Map[String, Option[String]]) = {
 

@@ -9,18 +9,18 @@ case class VastaanotettavuusIlmoitus(
   etunimi: String,
   email: String,
   deadline: Option[DateTime],
-  hakukohteet: List[Hakukohde],
-  haku: Haku
+  hakukohteet: List[HakukohdeOld],
+  haku: HakuOld
 )
 
-case class Hakukohde(
+case class HakukohdeOld(
   oid: String,
   ehdollisestiHyvaksyttavissa: Boolean,
   hakukohteenNimet: Map[String, Option[String]],
   tarjoajaNimet: Map[String, Option[String]]
 )
 
-case class Haku(
+case class HakuOld(
  oid: String,
  nimi: Map[String, Option[String]]
 )
