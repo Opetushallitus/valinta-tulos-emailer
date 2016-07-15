@@ -6,13 +6,13 @@ import org.specs2.mutable.Specification
 
 class MailerTest extends Specification {
   val registry: IT = Registry.fromString("it", CommandLineArgs()).asInstanceOf[IT]
-  registry.start
+  registry.start()
 
-  "Mailer" should {
-    "divide job into 2 batches and confirm all of them" in {
+  "Mailer divides batch correctly" should {
+    "divides job into 2 batches and confirms all of them" in {
       val batches = registry.mailer.sendMail
-      batches.size equals 2
-      registry.lastConfirmedAmount equals registry.maxResults
+      batches.size mustEqual 4 // 3 batches for languages and 1 email over limit
+      registry.lastConfirmedAmount mustEqual registry.maxResults
     }
   }
 }

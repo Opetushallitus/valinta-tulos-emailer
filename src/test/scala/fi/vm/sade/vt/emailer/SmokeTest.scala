@@ -20,8 +20,8 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
       val appender: TestAppender = new TestAppender
       Logger.getRootLogger.addAppender(appender)
       registry.mailer.sendMail
-      registry.asInstanceOf[LocalVT].lastEmailSize equals 3
-      appender.errors must_== List()
+      registry.asInstanceOf[LocalVT].lastEmailSize mustEqual 3
+      appender.errors mustEqual List()
     }
   }
 }
