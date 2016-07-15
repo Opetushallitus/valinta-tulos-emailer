@@ -13,12 +13,12 @@ case class Ilmoitus(
                      deadline: Option[DateTime],
                      hakukohteet: List[Hakukohde],
                      haku: Haku,
-                     lahetysSyy: LahetysSyy
+                     lahetysSyy: Option[LahetysSyy]
                    )
 
 case class Hakukohde(
                       oid: String,
-                      lahetysSyy: LahetysSyy,
+                      lahetysSyy: Option[LahetysSyy],
                       ehdollisestiHyvaksyttavissa: Boolean,
                       hakukohteenNimet: Map[String, Option[String]],
                       tarjoajaNimet: Map[String, Option[String]]
@@ -33,7 +33,7 @@ case class LahetysKuittaus(
                             hakemusOid: String,
                             hakukohteet: List[String],
                             mediat: List[String],
-                            lahetysSyy: LahetysSyy
+                            lahetysSyy: Option[LahetysSyy]
                           )
 
 object LahetysKuittaus {
