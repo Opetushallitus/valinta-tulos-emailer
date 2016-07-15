@@ -6,22 +6,22 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 case class Hakukohde(
-  oid: String,
-  nimi: String,
-  tarjoaja: String,
-  ehdollisestiHyvaksyttavissa: Boolean
-)
+                      oid: String,
+                      nimi: String,
+                      tarjoaja: String,
+                      ehdollisestiHyvaksyttavissa: Boolean
+                    )
 
 object VTEmailerReplacement {
   val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
 
-  def firstName(name: String) = new Replacement("etunimi", name)
+  def firstName(name: String) = Replacement("etunimi", name)
 
-  def deadline(date: Option[DateTime]) = new Replacement("deadline", deadlineText(date))
+  def deadline(date: Option[DateTime]) = Replacement("deadline", deadlineText(date))
 
-  def haunNimi(name: String) = new Replacement("haunNimi", name)
+  def haunNimi(name: String) = Replacement("haunNimi", name)
 
-  def hakukohteet(hakukohteet: List[Hakukohde]) = new Replacement("hakukohteet", hakukohteet)
+  def hakukohteet(hakukohteet: List[Hakukohde]) = Replacement("hakukohteet", hakukohteet)
 
   private def deadlineText(date: Option[DateTime]): String = date match {
     case Some(deadline) => fmt.print(deadline)
@@ -37,8 +37,8 @@ object VTRecipient {
       def fixKey(key: String) = key.toLowerCase.replace("kieli_", "")
 
       val translations = rawTranslations
-        .filter{case (key, value) => value.isDefined && !value.get.isEmpty}
-        .map{case (key, value) => (fixKey(key), value)}
+        .filter { case (key, value) => value.isDefined && !value.get.isEmpty }
+        .map { case (key, value) => (fixKey(key), value) }
 
       translations.get(language.toLowerCase).orElse(translations.get("fi")).getOrElse(translations.head._2).get
     }
@@ -52,6 +52,6 @@ object VTRecipient {
           getTranslation(hakukohde.tarjoajaNimet), hakukohde.ehdollisestiHyvaksyttavissa)
       ))
     )
-    new Recipient(Some(valintatulosRecipient.hakijaOid), valintatulosRecipient.email, valintatulosRecipient.asiointikieli, replacements)
+    Recipient(Some(valintatulosRecipient.hakijaOid), valintatulosRecipient.email, valintatulosRecipient.asiointikieli, replacements)
   }
 }

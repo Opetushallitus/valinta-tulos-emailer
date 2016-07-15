@@ -24,15 +24,13 @@ trait VastaanottopostiComponent {
         .param("limit", settings.recipientBatchSize.toString)
 
       reciepientBatchRequest.responseWithHeaders() match {
-        case (status, _, body) if status >= 200 && status < 300 => {
+        case (status, _, body) if status >= 200 && status < 300 =>
           logger.info(s"Received from valinta-tulos-service: $body")
           parse(body).extract[List[Ilmoitus]]
-        }
-        case (status, _, body)  => {
+        case (status, _, body) =>
           logger.error(s"Couldn't not connect to: ${settings.vastaanottopostiUrl}")
           logger.error(s"Fetching recipient batch failed with status: $status and body: $body")
           List()
-        }
       }
     }
 
@@ -41,10 +39,9 @@ trait VastaanottopostiComponent {
       val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts))).header("Content-type", "application/json")
       result.responseWithHeaders() match {
         case (status, _, _) if status >= 200 && status < 300 => true
-        case (status, _, body) => {
+        case (status, _, body) =>
           logger.error(s"Sending confirmation failed with status: $status and body: $body")
           false
-        }
       }
     }
   }
@@ -56,7 +53,7 @@ trait VastaanottopostiComponent {
     val recipients = List.fill(maxResults)(randomIlmoitus)
 
     def fetchRecipientBatch: List[Ilmoitus] = {
-      if(sentAmount < maxResults) {
+      if (sentAmount < maxResults) {
         val guys = recipients.slice(sentAmount, sentAmount + settings.recipientBatchSize)
         sentAmount += guys.size
         guys
@@ -70,17 +67,21 @@ trait VastaanottopostiComponent {
       true
     }
 
-    def randomIlmoitus = new Ilmoitus(randomOid, randomOid, randomLang,
+    def randomIlmoitus = Ilmoitus(randomOid, randomOid, randomLang,
       randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomHakukohdeList,
       Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))), LahetysSyy.vastaanottoilmoitus)
-    def randomHakukohdeList = List.fill(Random.nextInt(10) +1)(randomOid).map(oid => Hakukohde(
-      oid, lahetysSyy=LahetysSyy.vastaanottoilmoitus, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja"))
+
+    def randomHakukohdeList = List.fill(Random.nextInt(10) + 1)(randomOid).map(oid => Hakukohde(
+      oid, lahetysSyy = LahetysSyy.vastaanottoilmoitus, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja"))
     ))
+
     def confirmAmount: Int = _confirmAmount
   }
+
 }
 
 trait VastaanottopostiService {
   def fetchRecipientBatch: List[Ilmoitus]
+
   def sendConfirmation(recipients: List[Ilmoitus]): Boolean
 }

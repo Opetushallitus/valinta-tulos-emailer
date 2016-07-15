@@ -1,9 +1,9 @@
 package fi.vm.sade.vt.emailer.config
 
-import fi.vm.sade.groupemailer.{GroupEmailService, GroupEmailComponent}
+import fi.vm.sade.groupemailer.{GroupEmailComponent, GroupEmailService}
+import fi.vm.sade.vt.emailer.config.Registry.{StubbedExternalDeps, StubbedGroupEmail}
+import fi.vm.sade.vt.emailer.valintatulos.{VastaanottopostiComponent, VastaanottopostiService}
 import fi.vm.sade.vt.emailer.{Mailer, MailerComponent}
-import fi.vm.sade.vt.emailer.config.Registry.{StubbedGroupEmail, StubbedExternalDeps}
-import fi.vm.sade.vt.emailer.valintatulos.{VastaanottopostiService, VastaanottopostiComponent}
 
 
 trait Components extends GroupEmailComponent with VastaanottopostiComponent with MailerComponent with ApplicationSettingsComponent {
@@ -24,6 +24,7 @@ trait Components extends GroupEmailComponent with VastaanottopostiComponent with
 
   override val mailer: Mailer = new MailerImpl
 
-  def start {}
-  def stop {}
+  def start() {}
+
+  def stop() {}
 }

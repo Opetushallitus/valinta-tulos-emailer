@@ -33,7 +33,7 @@ object RandomDataGenerator {
   }
 
   def randomOid: String = {
-    def nextRandomInt(i: Int) = Random.nextInt(Math.pow(2,i).toInt)
+    def nextRandomInt(i: Int) = Random.nextInt(Math.pow(2, i).toInt)
     (1 to 10).map(nextRandomInt).mkString(".")
   }
 }

@@ -6,6 +6,7 @@ import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.utils.tcp.PortChecker
 
 object ValintatulosServiceRunner extends Logging {
+
   import scala.sys.process._
 
   val valintatulosPort = sys.props.getOrElse("valintatulos.port", PortChecker.findFreeLocalPort.toString).toInt
@@ -14,18 +15,18 @@ object ValintatulosServiceRunner extends Logging {
   var currentRunner: Option[scala.sys.process.Process] = None
 
   def start = this.synchronized {
-    if (currentRunner == None && PortChecker.isFreeLocalPort(valintatulosPort)) {
+    if (currentRunner.isEmpty && PortChecker.isFreeLocalPort(valintatulosPort)) {
       findValintatulosService match {
-        case Some(path) => {
-          logger.info("Starting valinta-tulos-service from " + path + " on port "+ valintatulosPort)
+        case Some(path) =>
+          logger.info("Starting valinta-tulos-service from " + path + " on port " + valintatulosPort)
 
           val cwd = new java.io.File(path)
           var javaHome = System.getProperty("JAVA8_HOME", System.getenv("JAVA_HOME"))
           if (javaHome == null || javaHome.contains("{")) {
-            javaHome ="";
+            javaHome = ""
           }
-          val mvn = System.getProperty("mvn", "mvn");
-          logger.info("Using java home:" + javaHome);
+          val mvn = System.getProperty("mvn", "mvn")
+          logger.info("Using java home:" + javaHome)
 
           val process = Process(List(mvn, "test-compile", "exec:java@local_jetty", "-Dvalintatulos.port=" + valintatulosPort, "-Dvalintatulos.profile=it", "-Dfile.encoding=UTF-8"), cwd, "JAVA_HOME" -> javaHome).run(true)
 
@@ -36,8 +37,9 @@ object ValintatulosServiceRunner extends Logging {
             throw new RuntimeException("Valinta-tulos-service did not start in 500 seconds")
           }
           currentRunner = Some(process)
-          sys.addShutdownHook { ValintatulosServiceRunner.stop }
-        }
+          sys.addShutdownHook {
+            ValintatulosServiceRunner.stop()
+          }
         case _ =>
           logger.error("******* valinta-tulos-service not found ********")
       }
@@ -46,7 +48,7 @@ object ValintatulosServiceRunner extends Logging {
     }
   }
 
-  def stop = this.synchronized {
+  def stop() = this.synchronized {
     logger.info("Stoping valinta-tulos-service")
     currentRunner.foreach(_.destroy)
   }

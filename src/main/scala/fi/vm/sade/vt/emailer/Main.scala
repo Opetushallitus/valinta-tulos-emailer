@@ -10,7 +10,7 @@ object Main extends App {
   def parseCommandLineArgs: CommandLineArgs = {
     val parser = new OptionParser[CommandLineArgs]("scopt") {
       head("valinta-tulos-emailer")
-      opt[Unit]("test") action { (_, c) => c.copy(test = true)} text "Use test mode, don't send any emails"
+      opt[Unit]("test") action { (_, c) => c.copy(test = true) } text "Use test mode, don't send any emails"
     }
     parser.parse(args, CommandLineArgs()) match {
       case Some(config) => config
@@ -21,15 +21,15 @@ object Main extends App {
   val registry: Registry = Registry.fromString(
     Option(System.getProperty("vtemailer.profile")).getOrElse("default"),
     parseCommandLineArgs)
-  registry.start
-  new Main(registry).start
+  registry.start()
+  new Main(registry).start()
 }
 
 class Main(registry: Registry) extends Logging {
-  def start: Unit = {
+  def start(): Unit = {
     logger.info("***** VT-emailer started *****")
     Timer.timed("Batch send") {
-      val ids =  registry.mailer.sendMail
+      val ids = registry.mailer.sendMail
       if (ids.nonEmpty) {
         logger.info(s"Job sent succesfully, jobId: $ids")
         println(s"Job sent succesfully, jobId: $ids")

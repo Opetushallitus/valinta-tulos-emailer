@@ -18,9 +18,9 @@ trait MailerComponent {
     private def collectAndSend(batchNr: Int, ids: List[String], batch: List[Ilmoitus]): List[String] = {
       def sendAndConfirm(currentBatch: List[Ilmoitus]): List[String] = {
         val groupedByLang: Map[String, List[Ilmoitus]] = currentBatch.groupBy(v => v.asiointikieli)
-        val sentIds : List[String] = groupedByLang.map { case (language, ilmoitukset) => {
+        val sentIds: List[String] = groupedByLang.map { case (language, ilmoitukset) =>
           sendBatch(ilmoitukset, language)
-        }}.toList.flatten
+        }.toList.flatten
         ids ++ sentIds
       }
       logger.info("Fetching recipients from valinta-tulos-service")
@@ -28,7 +28,7 @@ trait MailerComponent {
       logger.info(s"Found ${newBatch.size} to send")
       newBatch.foreach(ilmoitus => logger.info("Found " + ilmoitus.toString))
 
-      if (newBatch.size > 0) {
+      if (newBatch.nonEmpty) {
         val currentBatch = batch ::: newBatch
         val currentBatchSize: Int = currentBatch.size
         val sendBatchSize: Int = settings.emailBatchSize
@@ -41,7 +41,7 @@ trait MailerComponent {
           collectAndSend(batchNr, ids, currentBatch)
         }
       } else {
-        if (batch.size > 0) {
+        if (batch.nonEmpty) {
           logger.info("Last batch fetched")
           sendAndConfirm(batch)
         } else {
@@ -56,22 +56,20 @@ trait MailerComponent {
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Language $language. Batch size ${recipients.size}")
         try {
-          groupEmailService.send(new GroupEmail(recipients, new EmailInfo("omattiedot", "omattiedot_email", language))) match {
-            case Some(id) => {
+          groupEmailService.send(GroupEmail(recipients, EmailInfo("omattiedot", "omattiedot_email", language))) match {
+            case Some(id) =>
               if (vastaanottopostiService.sendConfirmation(batch)) {
                 logger.info(s"Succesfully confirmed batch id: $id")
               } else {
                 logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
               }
               Some(id)
-            }
             case _ => None
           }
         } catch {
-          case e : Exception => {
-            logger.error("Group email sending error "+e)
+          case e: Exception =>
+            logger.error("Group email sending error " + e)
             None
-          }
         }
       } else {
         logger.info(s"Not actually sending anything, test mode was set. Batch size ${recipients.size}")
@@ -79,6 +77,7 @@ trait MailerComponent {
       }
     }
   }
+
 }
 
 trait Mailer {

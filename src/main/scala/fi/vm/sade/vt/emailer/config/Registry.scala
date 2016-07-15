@@ -3,13 +3,13 @@ package fi.vm.sade.vt.emailer.config
 import java.io.FileInputStream
 import java.util.Properties
 
+import fi.vm.sade.utils.config.{ApplicationSettingsLoader, ConfigTemplateProcessor}
 import fi.vm.sade.vt.emailer.CommandLineArgs
-import fi.vm.sade.utils.config.{ConfigTemplateProcessor, ApplicationSettingsLoader}
 import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.apache.log4j.PropertyConfigurator
 
 object Registry {
-  def getProfileProperty() = System.getProperty("vtemailer.profile", "default")
+  def getProfileProperty = System.getProperty("vtemailer.profile", "default")
 
   def fromString(profile: String, commandLineArgs: CommandLineArgs) = {
     println("Using vtemailer.profile=" + profile)
@@ -25,27 +25,27 @@ object Registry {
   }
 
   /**
-   * Default profile, uses ~/oph-configuration/valinta-tulos-emailer.properties
-   */
+    * Default profile, uses ~/oph-configuration/valinta-tulos-emailer.properties
+    */
   class Default(val commandLineArgs: CommandLineArgs) extends Registry with ExternalProps
 
   /**
-   * Templated profile, uses config template with vars file located by system property vtemailer.vars
-   */
+    * Templated profile, uses config template with vars file located by system property vtemailer.vars
+    */
   class LocalTestingWithTemplatedVars(val commandLineArgs: CommandLineArgs, val templateAttributesFile: String = System.getProperty("vtemailer.vars")) extends Registry with TemplatedProps
 
   /**
-   * Dev profile
-   */
+    * Dev profile
+    */
   class Dev(val commandLineArgs: CommandLineArgs) extends Registry with ExampleTemplatedProps {
-    override def start {
+    override def start() {
       ValintatulosServiceRunner.start
     }
   }
 
   /**
-   *  IT (integration test) profiles.
-   */
+    * IT (integration test) profiles.
+    */
   class IT(val commandLineArgs: CommandLineArgs) extends Registry with ExampleTemplatedProps with StubbedExternalDeps {
     def lastEmailSize() = groupEmailService match {
       case x: FakeGroupEmailService => x.getLastEmailSize
@@ -53,6 +53,7 @@ object Registry {
     }
 
     def maxResults = fakeVastaanottopostiService.maxResults
+
     def lastConfirmedAmount = fakeVastaanottopostiService.confirmAmount
 
     def fakeVastaanottopostiService: FakeVastaanottopostiService = {
@@ -61,11 +62,11 @@ object Registry {
   }
 
   /**
-   *  LocalVT (integration test) profile. Uses local valinta-tulos-service
-   */
+    * LocalVT (integration test) profile. Uses local valinta-tulos-service
+    */
   class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedGroupEmail {
 
-    override def start {
+    override def start() {
       ValintatulosServiceRunner.start
     }
 
@@ -77,13 +78,16 @@ object Registry {
     implicit val settingsParser = ApplicationSettingsParser(commandLineArgs)
     override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
-        "http://localhost:"+ ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
+        "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
   }
 
   trait ExternalProps extends WithCommandLineArgs {
     def configFile = System.getProperty("user.home") + "/oph-configuration/valinta-tulos-emailer.properties"
+
     lazy val settings = ApplicationSettingsLoader.loadSettings(configFile)(ApplicationSettingsParser(commandLineArgs))
+
     def log4jconfigFile = System.getProperty("user.home") + "/oph-configuration/log4j.properties"
+
     val log4jproperties = new Properties()
     log4jproperties.load(new FileInputStream(log4jconfigFile))
     PropertyConfigurator.configure(log4jproperties)
@@ -96,10 +100,12 @@ object Registry {
   trait TemplatedProps extends WithCommandLineArgs {
     println("Using template variables from " + templateAttributesFile)
     lazy val settings = loadSettings
+
     def loadSettings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)(ApplicationSettingsParser(commandLineArgs))
+
     def templateAttributesFile: String
   }
-  
+
   trait WithCommandLineArgs {
     val commandLineArgs: CommandLineArgs
   }
