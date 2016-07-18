@@ -9,9 +9,9 @@ class MailerTest extends Specification {
   registry.start()
 
   "Mailer divides batch correctly" should {
-    "divides job into 2 batches and confirms all of them" in {
+    "divides job into 4 batches and confirms all of them" in {
       val batches = registry.mailer.sendMail
-      batches.size mustEqual 4 // 3 batches for languages and 1 email over limit
+      batches.size mustEqual 4 // 3 languages and 1 extra ilmoitus over batch size
       registry.lastConfirmedAmount mustEqual registry.maxResults
     }
   }

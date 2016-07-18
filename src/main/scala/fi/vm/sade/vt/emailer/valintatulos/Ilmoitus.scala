@@ -12,16 +12,15 @@ case class Ilmoitus(
                      email: String,
                      deadline: Option[DateTime],
                      hakukohteet: List[Hakukohde],
-                     haku: Haku,
-                     lahetysSyy: Option[LahetysSyy]
+                     haku: Haku
                    )
 
 case class Hakukohde(
                       oid: String,
-                      lahetysSyy: Option[LahetysSyy],
                       ehdollisestiHyvaksyttavissa: Boolean,
                       hakukohteenNimet: Map[String, Option[String]],
-                      tarjoajaNimet: Map[String, Option[String]]
+                      tarjoajaNimet: Map[String, Option[String]],
+                      lahetysSyy: LahetysSyy
                     )
 
 case class Haku(
@@ -32,13 +31,12 @@ case class Haku(
 case class LahetysKuittaus(
                             hakemusOid: String,
                             hakukohteet: List[String],
-                            mediat: List[String],
-                            lahetysSyy: Option[LahetysSyy]
+                            mediat: List[String]
                           )
 
 object LahetysKuittaus {
   def apply(recipient: Ilmoitus): LahetysKuittaus = {
-    new LahetysKuittaus(recipient.hakemusOid, recipient.hakukohteet.map(_.oid), List("email"), recipient.lahetysSyy)
+    new LahetysKuittaus(recipient.hakemusOid, recipient.hakukohteet.map(_.oid), List("email"))
   }
 }
 

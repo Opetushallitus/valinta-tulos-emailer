@@ -69,11 +69,11 @@ trait VastaanottopostiComponent {
 
     def randomIlmoitus = Ilmoitus(randomOid, randomOid, randomLang,
       randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomHakukohdeList,
-      Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))), Some(LahetysSyy.vastaanottoilmoitus))
+      Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))))
 
     def randomHakukohdeList = List.fill(Random.nextInt(10) + 1)(randomOid).map(oid => Hakukohde(
-      oid, lahetysSyy = Some(LahetysSyy.vastaanottoilmoitus), ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja"))
-    ))
+      oid, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja")),
+      LahetysSyy.vastaanottoilmoitus))
 
     def confirmAmount: Int = _confirmAmount
   }
