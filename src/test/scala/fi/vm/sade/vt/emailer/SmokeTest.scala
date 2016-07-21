@@ -15,13 +15,13 @@ class SmokeTest extends Specification with HttpComponentsClient with Logging {
   override def baseUrl: String = "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service"
 
   "Fetch, send and confirm batch" in {
-    registry.start
+    registry.start()
     put("util/fixtures/generate?hakemuksia=3&hakukohteita=2") {
       val appender: TestAppender = new TestAppender
       Logger.getRootLogger.addAppender(appender)
       registry.mailer.sendMail
-      registry.asInstanceOf[LocalVT].lastEmailSize equals 3
-      appender.errors must_== List()
+      registry.asInstanceOf[LocalVT].lastEmailSize mustEqual 3
+      appender.errors mustEqual List()
     }
   }
 }
