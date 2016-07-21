@@ -24,7 +24,7 @@ object VTEmailerReplacement {
 
   def hakukohteet(hakukohteet: List[Hakukohde]) = Replacement("hakukohteet", hakukohteet)
 
-  def hakukohde(hakukohde: Hakukohde) = Replacement("hakukohde", hakukohde)
+  def hakukohde(hakukohde: String) = Replacement("hakukohde", hakukohde)
 
   private def deadlineText(date: Option[DateTime]): String = date match {
     case Some(deadline) => fmt.print(deadline)
@@ -50,10 +50,7 @@ object VTRecipient {
       val hakukohteet = valintatulosRecipient.hakukohteet
       val lahetysSyy: LahetysSyy = hakukohteet.head.lahetysSyy
       if (hakukohteet.size == 1 && (lahetysSyy.equals(ehdollisen_periytymisen_ilmoitus) || lahetysSyy.equals(sitovan_vastaanoton_ilmoitus))) {
-        val hakukohde = hakukohteet.head
-        VTEmailerReplacement.hakukohde(Hakukohde(hakukohde.oid, getTranslation(hakukohde.hakukohteenNimet),
-          getTranslation(hakukohde.tarjoajaNimet), hakukohde.ehdollisestiHyvaksyttavissa)
-        )
+        VTEmailerReplacement.hakukohde(getTranslation(hakukohteet.head.hakukohteenNimet))
       } else if (lahetysSyy.equals(vastaanottoilmoitus)) {
         VTEmailerReplacement.hakukohteet(hakukohteet.map(hakukohde =>
           Hakukohde(hakukohde.oid, getTranslation(hakukohde.hakukohteenNimet),
