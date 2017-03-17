@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 case class Ilmoitus(
                      hakemusOid: String,
                      hakijaOid: String,
+                     secureLink: Option[String],
                      asiointikieli: String,
                      etunimi: String,
                      email: String,

@@ -57,7 +57,7 @@ class MailerHelperTest extends Specification {
   }
 
   def getDummyIlmoitus(hakukohteidenLahetysSyyt: List[LahetysSyy]): Ilmoitus = {
-    Ilmoitus(null, null, FI, null, null, null,
+    Ilmoitus(null, null, None, FI, null, null, null,
       hakukohteidenLahetysSyyt.map(Hakukohde(null, true, null, null, _)),
       null)
   }
