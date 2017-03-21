@@ -6,6 +6,8 @@ import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.Registry
 import scopt.OptionParser
 
+import scala.util.Try
+
 object Main extends App {
   def parseCommandLineArgs: CommandLineArgs = {
     val parser = new OptionParser[CommandLineArgs]("scopt") {
@@ -28,7 +30,7 @@ object Main extends App {
 class Main(registry: Registry) extends Logging {
   def start(): Unit = {
     logger.info("***** VT-emailer started *****")
-    Timer.timed("Batch send") {
+    Try(Timer.timed("Batch send") {
       val ids = registry.mailer.sendMail
       if (ids.nonEmpty) {
         logger.info(s"Job sent succesfully, jobId: $ids")
@@ -36,6 +38,9 @@ class Main(registry: Registry) extends Logging {
       } else {
         println("Nothing was sent. More info in logs.")
       }
+    }).recover {
+      case e =>
+        logger.error("Failed to send email: ", e)
     }
     logger.info("***** VT-emailer finished *****")
   }
