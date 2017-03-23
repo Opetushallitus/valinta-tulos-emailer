@@ -16,7 +16,7 @@ case class Hakukohde(
 object VTEmailerReplacement {
   val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
 
-  def secureLink(secureLink: String) = Replacement("secureLink", secureLink)
+  def secureLink(secureLink: String) = Replacement("securelink", secureLink)
 
   def firstName(name: String) = Replacement("etunimi", name)
 
