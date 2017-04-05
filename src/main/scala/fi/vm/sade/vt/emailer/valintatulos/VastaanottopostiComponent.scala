@@ -67,7 +67,7 @@ trait VastaanottopostiComponent {
       true
     }
 
-    def randomIlmoitus = Ilmoitus(randomOid, randomOid, randomLang,
+    def randomIlmoitus = Ilmoitus(randomOid, randomOid, None, randomLang,
       randomFirstName, randomEmailAddress, Some(randomDateAfterNow), randomHakukohdeList,
       Haku(randomOid, Map("kieli_fi" -> Some("Testihaku"))))
 

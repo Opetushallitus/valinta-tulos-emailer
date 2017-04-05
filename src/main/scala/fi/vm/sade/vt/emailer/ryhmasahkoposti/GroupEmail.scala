@@ -16,6 +16,8 @@ case class Hakukohde(
 object VTEmailerReplacement {
   val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
 
+  def secureLink(secureLink: String) = Replacement("securelink", secureLink)
+
   def firstName(name: String) = Replacement("etunimi", name)
 
   def deadline(date: Option[DateTime]) = Replacement("deadline", deadlineText(date))
@@ -67,7 +69,8 @@ object VTRecipient {
       VTEmailerReplacement.deadline(valintatulosRecipient.deadline),
       VTEmailerReplacement.haunNimi(getTranslation(valintatulosRecipient.haku.nimi)),
       getHakukohtees
-    )
+    ) ++ valintatulosRecipient.secureLink.map(VTEmailerReplacement.secureLink).toList
+
     Recipient(Some(valintatulosRecipient.hakijaOid), valintatulosRecipient.email, valintatulosRecipient.asiointikieli, replacements)
   }
 }

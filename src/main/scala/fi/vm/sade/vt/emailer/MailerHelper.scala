@@ -28,6 +28,7 @@ class MailerHelper {
       Ilmoitus(
         original.hakemusOid,
         original.hakijaOid,
+        original.secureLink,
         original.asiointikieli,
         original.etunimi,
         original.email,
