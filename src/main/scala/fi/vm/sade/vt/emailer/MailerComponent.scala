@@ -16,7 +16,8 @@ trait MailerComponent {
   class MailerImpl extends Mailer with Logging {
     private val helper: MailerHelper = new MailerHelper
     private val letterTemplateNameFor = HashMap[LahetysSyy, String](
-      vastaanottoilmoitus -> "omattiedot_email",
+      vastaanottoilmoitusKk -> "omattiedot_email",
+      vastaanottoilmoitus2aste -> "omattiedot_email_2aste",
       ehdollisen_periytymisen_ilmoitus -> "ehdollisen_periytyminen_email",
       sitovan_vastaanoton_ilmoitus -> "sitova_vastaanotto_email"
     )

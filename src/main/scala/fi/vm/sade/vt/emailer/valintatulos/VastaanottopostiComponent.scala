@@ -73,7 +73,7 @@ trait VastaanottopostiComponent {
 
     def randomHakukohdeList = List.fill(Random.nextInt(10) + 1)(randomOid).map(oid => Hakukohde(
       oid, ehdollisestiHyvaksyttavissa = false, Map("kieli_fi" -> Some("Testihakukohde")), Map("fi" -> Some("Testitarjoaja")),
-      LahetysSyy.vastaanottoilmoitus))
+      LahetysSyy.vastaanottoilmoitusKk))
 
     def confirmAmount: Int = _confirmAmount
   }
