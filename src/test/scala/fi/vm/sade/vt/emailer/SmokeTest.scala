@@ -10,6 +10,9 @@ import org.scalatra.test.HttpComponentsClient
 import org.specs2.mutable._
 
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
+
+  args(skipAll=true)
+  
   lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("localvt"), CommandLineArgs())
 
   override def baseUrl: String = "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service"
