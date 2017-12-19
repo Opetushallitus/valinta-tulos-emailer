@@ -17,30 +17,30 @@ class MailerHelperTest extends Specification {
     }
 
     "not split one simple ilmoitus" in {
-      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitus, vastaanottoilmoitus))
+      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitusKk, vastaanottoilmoitusKk))
 
       val result = helper.splitAndGroupIlmoitus(List(ilmoitus))
 
       result.size shouldEqual 1
-      result((FI, vastaanottoilmoitus)).size shouldEqual 1
-      result((FI, vastaanottoilmoitus)).head.hakukohteet.size shouldEqual 2
+      result((FI, vastaanottoilmoitusKk)).size shouldEqual 1
+      result((FI, vastaanottoilmoitusKk)).head.hakukohteet.size shouldEqual 2
     }
 
     "splits one simple ilmoitus" in {
-      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitus, sitovan_vastaanoton_ilmoitus))
+      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitusKk, sitovan_vastaanoton_ilmoitus))
 
       val result = helper.splitAndGroupIlmoitus(List(ilmoitus))
 
       result.size shouldEqual 2
       result((FI, sitovan_vastaanoton_ilmoitus)).size shouldEqual 1
       result((FI, sitovan_vastaanoton_ilmoitus)).head.hakukohteet.size shouldEqual 1
-      result((FI, vastaanottoilmoitus)).size shouldEqual 1
-      result((FI, vastaanottoilmoitus)).head.hakukohteet.size shouldEqual 1
+      result((FI, vastaanottoilmoitusKk)).size shouldEqual 1
+      result((FI, vastaanottoilmoitusKk)).head.hakukohteet.size shouldEqual 1
     }
 
     "group multiple ilmoituses" in {
-      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitus, sitovan_vastaanoton_ilmoitus))
-      val ilmoitus2 = getDummyIlmoitus(List(vastaanottoilmoitus, sitovan_vastaanoton_ilmoitus))
+      val ilmoitus = getDummyIlmoitus(List(vastaanottoilmoitusKk, sitovan_vastaanoton_ilmoitus))
+      val ilmoitus2 = getDummyIlmoitus(List(vastaanottoilmoitusKk, sitovan_vastaanoton_ilmoitus))
       val ilmoitus3 = getDummyIlmoitus(List(ehdollisen_periytymisen_ilmoitus))
 
       val result = helper.splitAndGroupIlmoitus(List(ilmoitus, ilmoitus2, ilmoitus3))
@@ -48,8 +48,8 @@ class MailerHelperTest extends Specification {
       result.size shouldEqual 3
       result((FI, sitovan_vastaanoton_ilmoitus)).size shouldEqual 2
       result((FI, sitovan_vastaanoton_ilmoitus)).head.hakukohteet.size shouldEqual 1
-      result((FI, vastaanottoilmoitus)).size shouldEqual 2
-      result((FI, vastaanottoilmoitus)).head.hakukohteet.size shouldEqual 1
+      result((FI, vastaanottoilmoitusKk)).size shouldEqual 2
+      result((FI, vastaanottoilmoitusKk)).head.hakukohteet.size shouldEqual 1
       result((FI, ehdollisen_periytymisen_ilmoitus)).size shouldEqual 1
       result((FI, ehdollisen_periytymisen_ilmoitus)).head.hakukohteet.size shouldEqual 1
     }

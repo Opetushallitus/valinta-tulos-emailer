@@ -53,7 +53,7 @@ object VTRecipient {
       val lahetysSyy: LahetysSyy = hakukohteet.head.lahetysSyy
       if (hakukohteet.size == 1 && (lahetysSyy.equals(ehdollisen_periytymisen_ilmoitus) || lahetysSyy.equals(sitovan_vastaanoton_ilmoitus))) {
         VTEmailerReplacement.hakukohde(getTranslation(hakukohteet.head.hakukohteenNimet))
-      } else if (lahetysSyy.equals(vastaanottoilmoitus)) {
+      } else if (lahetysSyy.equals(vastaanottoilmoitusKk) || lahetysSyy.equals(vastaanottoilmoitus2aste)) {
         VTEmailerReplacement.hakukohteet(hakukohteet.map(hakukohde =>
           Hakukohde(hakukohde.oid, getTranslation(hakukohde.hakukohteenNimet),
             getTranslation(hakukohde.tarjoajaNimet), hakukohde.ehdollisestiHyvaksyttavissa)
