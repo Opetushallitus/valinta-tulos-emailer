@@ -6,9 +6,12 @@ import fi.vm.sade.vt.emailer.config.Registry.{LocalVT, Registry}
 import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.apache.log4j._
 import org.apache.log4j.spi.LoggingEvent
+import org.junit.runner.RunWith
 import org.scalatra.test.HttpComponentsClient
 import org.specs2.mutable._
+import org.specs2.runner.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
   lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("localvt"), CommandLineArgs())
 

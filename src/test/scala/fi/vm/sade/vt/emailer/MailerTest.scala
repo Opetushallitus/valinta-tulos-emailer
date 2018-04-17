@@ -2,8 +2,11 @@ package fi.vm.sade.vt.emailer
 
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.IT
+import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class MailerTest extends Specification {
   val registry: IT = Registry.fromString("it", CommandLineArgs()).asInstanceOf[IT]
   registry.start()

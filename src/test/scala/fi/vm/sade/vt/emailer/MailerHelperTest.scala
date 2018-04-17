@@ -2,8 +2,11 @@ package fi.vm.sade.vt.emailer
 
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy._
 import fi.vm.sade.vt.emailer.valintatulos.{Hakukohde, Ilmoitus}
+import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class MailerHelperTest extends Specification {
 
   val helper: MailerHelper = new MailerHelper
