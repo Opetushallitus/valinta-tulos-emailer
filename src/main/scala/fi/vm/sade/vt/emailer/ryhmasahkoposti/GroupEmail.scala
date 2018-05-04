@@ -4,7 +4,7 @@ import fi.vm.sade.groupemailer.{Recipient, Replacement}
 import fi.vm.sade.vt.emailer.valintatulos
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy._
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 case class Hakukohde(
                       oid: String,
@@ -14,7 +14,7 @@ case class Hakukohde(
                     )
 
 object VTEmailerReplacement {
-  val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
+  val fmt: DateTimeFormatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm")
 
   def secureLink(secureLink: String) = Replacement("securelink", secureLink)
 
