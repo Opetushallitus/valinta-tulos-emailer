@@ -3,7 +3,7 @@ package fi.vm.sade.vt.emailer.ryhmasahkoposti
 import fi.vm.sade.groupemailer.{Recipient, Replacement}
 import fi.vm.sade.vt.emailer.valintatulos
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy._
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 case class Hakukohde(
@@ -29,7 +29,7 @@ object VTEmailerReplacement {
   def hakukohde(hakukohde: String) = Replacement("hakukohde", hakukohde)
 
   private def deadlineText(date: Option[DateTime]): String = date match {
-    case Some(deadline) => fmt.print(deadline)
+    case Some(deadline) => fmt.print(deadline.withZone(DateTimeZone.forID("Europe/Helsinki")))
     case _ => ""
   }
 }
