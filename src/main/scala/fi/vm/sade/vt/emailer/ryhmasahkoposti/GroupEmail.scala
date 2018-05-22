@@ -3,8 +3,9 @@ package fi.vm.sade.vt.emailer.ryhmasahkoposti
 import fi.vm.sade.groupemailer.{Recipient, Replacement}
 import fi.vm.sade.vt.emailer.valintatulos
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy._
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import fi.vm.sade.utils.slf4j.Logging
+import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 case class Hakukohde(
                       oid: String,
@@ -14,8 +15,6 @@ case class Hakukohde(
                     )
 
 object VTEmailerReplacement {
-  val fmt = DateTimeFormat.forPattern("dd.MM.yyyy")
-
   def secureLink(secureLink: String) = Replacement("securelink", secureLink)
 
   def firstName(name: String) = Replacement("etunimi", name)
@@ -29,12 +28,14 @@ object VTEmailerReplacement {
   def hakukohde(hakukohde: String) = Replacement("hakukohde", hakukohde)
 
   private def deadlineText(date: Option[DateTime]): String = date match {
-    case Some(deadline) => fmt.print(deadline)
-    case _ => ""
+    case Some(deadline) =>
+      VTEmailerDeadlineFormat.create().print(deadline.withZone(DateTimeZone.forID("Europe/Helsinki")))
+    case _ =>
+      ""
   }
 }
 
-object VTRecipient {
+object VTRecipient extends Logging {
   def apply(valintatulosRecipient: valintatulos.Ilmoitus, language: String): Recipient = {
 
     def getTranslation(rawTranslations: Map[String, Option[String]]) = {
@@ -64,13 +65,24 @@ object VTRecipient {
       }
     }
 
+    val deadlineReplacement: Replacement = VTEmailerReplacement.deadline(valintatulosRecipient.deadline)
+    logger.info(s"Deadline for hakemus '${valintatulosRecipient.hakemusOid}' was '${valintatulosRecipient.deadline}', which gave the deadlineText: '${deadlineReplacement.value}'.")
+
     val replacements = List(
       VTEmailerReplacement.firstName(valintatulosRecipient.etunimi),
-      VTEmailerReplacement.deadline(valintatulosRecipient.deadline),
+      deadlineReplacement,
       VTEmailerReplacement.haunNimi(getTranslation(valintatulosRecipient.haku.nimi)),
       getHakukohtees
     ) ++ valintatulosRecipient.secureLink.map(VTEmailerReplacement.secureLink).toList
 
     Recipient(Some(valintatulosRecipient.hakijaOid), valintatulosRecipient.email, valintatulosRecipient.asiointikieli, replacements)
+  }
+}
+
+private object VTEmailerDeadlineFormat {
+  val pattern: String = "dd.MM.yyyy HH:mm"
+
+  def create(): DateTimeFormatter = {
+    DateTimeFormat.forPattern(pattern)
   }
 }
