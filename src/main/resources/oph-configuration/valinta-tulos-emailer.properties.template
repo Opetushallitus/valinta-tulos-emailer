@@ -18,4 +18,4 @@ ryhmasahkoposti.service.email.url=https://{{host_virkailija}}/ryhmasahkoposti-se
 
 # Valintatulokset
 valinta-tulos-service.batch.size={{ vt_batch_size }}
-valinta-tulos-service.vastaanottoposti.url=https://{{host_virkailija}}/valinta-tulos-service/vastaanottoposti
+valinta-tulos-service.vastaanottoposti.url={{host_alb}}/valinta-tulos-service/vastaanottoposti
