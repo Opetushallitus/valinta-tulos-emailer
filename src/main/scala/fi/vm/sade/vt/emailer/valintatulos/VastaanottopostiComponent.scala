@@ -34,11 +34,15 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
-      val reciepts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
-      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(reciepts))).header("Content-type", "application/json")
+    def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean = {
+      val receipts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
+      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(receipts))).header("Content-type", "application/json")
       result.responseWithHeaders() match {
-        case (status, _, _) if status >= 200 && status < 300 => true
+        case (status, _, _) if status >= 200 && status < 300 =>
+          true
+        case (status, _, body) if sendConfirmationRetries > 0 =>
+          logger.error(s"Retrying to send confirmation since it failed with status: $status and body: $body")
+          sendConfirmation(sendConfirmationRetries - 1, recipients)
         case (status, _, body) =>
           logger.error(s"Sending confirmation failed with status: $status and body: $body")
           false
@@ -62,7 +66,7 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
+    def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean = {
       _confirmAmount += recipients.size
       true
     }
@@ -83,5 +87,5 @@ trait VastaanottopostiComponent {
 trait VastaanottopostiService {
   def fetchRecipientBatch: List[Ilmoitus]
 
-  def sendConfirmation(recipients: List[Ilmoitus]): Boolean
+  def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean
 }

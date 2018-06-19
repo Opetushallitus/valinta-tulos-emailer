@@ -66,12 +66,13 @@ trait MailerComponent {
 
     private def sendBatch(batch: List[Ilmoitus], language: String, lahetysSyy: LahetysSyy): Option[String] = {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_, language))
+      val sendConfirmationRetries:Int = 3
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Language $language. LahetysSyy $lahetysSyy Batch size ${recipients.size}")
         try {
           groupEmailService.send(GroupEmail(recipients, EmailInfo("omattiedot", letterTemplateNameFor(lahetysSyy), language))) match {
             case Some(id) =>
-              if (vastaanottopostiService.sendConfirmation(batch)) {
+              if (vastaanottopostiService.sendConfirmation(sendConfirmationRetries, batch)) {
                 logger.info(s"Succesfully confirmed batch id: $id")
               } else {
                 logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")
