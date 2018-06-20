@@ -8,6 +8,8 @@ case class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs)
   val vastaanottopostiUrl = config.getString("valinta-tulos-service.vastaanottoposti.url")
   val recipientBatchSize = config.getInt("valinta-tulos-service.batch.size")
   val testMode = commandLineArgs.test
+  val sendConfirmationRetries = config.getInt("valinta-tulos-service.confirmation.retries")
+  val sendConfirmationSleep = config.getInt("valinta-tulos-service.confirmation.sleep.seconds")
 }
 
 case class ApplicationSettingsParser(commandLineArgs: CommandLineArgs) extends fi.vm.sade.utils.config.ApplicationSettingsParser[ApplicationSettings] {

@@ -19,3 +19,7 @@ ryhmasahkoposti.service.email.url=https://{{host_virkailija}}/ryhmasahkoposti-se
 # Valintatulokset
 valinta-tulos-service.batch.size={{ vt_batch_size }}
 valinta-tulos-service.vastaanottoposti.url={{host_alb}}/valinta-tulos-service/vastaanottoposti
+
+# SÄHKÖPOSTIEN LÄHETYSKUITTAUS
+valinta-tulos-service.confirmation.retries={{ 3 }}
+valinta-tulos-service.confirmation.sleep.seconds={{ 10 }}

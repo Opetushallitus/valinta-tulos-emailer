@@ -18,6 +18,7 @@ trait VastaanottopostiComponent {
 
   class RemoteVastaanottopostiService extends VastaanottopostiService with JsonFormats with Logging {
     private val httpOptions = Seq(HttpOptions.connTimeout(10 * 1000), HttpOptions.readTimeout(8 * 60 * 60 * 1000))
+    private val retryCounter = 1
 
     def fetchRecipientBatch: List[Ilmoitus] = {
       val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
@@ -34,15 +35,19 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean = {
+
+
+
+    def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean = {
       val receipts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
       val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(receipts))).header("Content-type", "application/json")
       result.responseWithHeaders() match {
         case (status, _, _) if status >= 200 && status < 300 =>
           true
-        case (status, _, body) if sendConfirmationRetries > 0 =>
+        case (status, _, body) if retryCounter <= sendConfirmationRetries =>
+          Thread.sleep(1000 * settings.sendConfirmationSleep * retryCounter)
           logger.error(s"Retrying to send confirmation since it failed with status: $status and body: $body")
-          sendConfirmation(sendConfirmationRetries - 1, recipients)
+          sendConfirmation(retryCounter + 1, recipients)
         case (status, _, body) =>
           logger.error(s"Sending confirmation failed with status: $status and body: $body")
           false
@@ -66,7 +71,7 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean = {
+    def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean = {
       _confirmAmount += recipients.size
       true
     }
@@ -87,5 +92,5 @@ trait VastaanottopostiComponent {
 trait VastaanottopostiService {
   def fetchRecipientBatch: List[Ilmoitus]
 
-  def sendConfirmation(sendConfirmationRetries:Int, recipients: List[Ilmoitus]): Boolean
+  def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean
 }
