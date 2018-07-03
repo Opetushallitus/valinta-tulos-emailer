@@ -45,7 +45,7 @@ trait VastaanottopostiComponent {
         case (status, _, _) if status >= 200 && status < 300 =>
           true
         case (status, _, body) if retryCounter <= sendConfirmationRetries =>
-          Thread.sleep(1000 * settings.sendConfirmationSleep * retryCounter)
+          Thread.sleep(settings.sendConfirmationSleep.toMillis * retryCounter)
           logger.error(s"Retrying to send confirmation since it failed with status: $status and body: $body")
           sendConfirmation(retryCounter + 1, recipients)
         case (status, _, body) =>
