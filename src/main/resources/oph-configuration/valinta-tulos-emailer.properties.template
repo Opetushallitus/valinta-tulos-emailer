@@ -21,5 +21,5 @@ valinta-tulos-service.batch.size={{ vt_batch_size }}
 valinta-tulos-service.vastaanottoposti.url={{host_alb}}/valinta-tulos-service/vastaanottoposti
 
 # SÄHKÖPOSTIEN LÄHETYSKUITTAUS
-valinta-tulos-service.confirmation.retries=3
-valinta-tulos-service.confirmation.sleep.seconds=10
+valinta-tulos-service.http.retries=3
+valinta-tulos-service.http.retry.sleep.seconds=10

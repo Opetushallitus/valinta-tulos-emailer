@@ -72,7 +72,7 @@ trait MailerComponent {
         try {
           groupEmailService.send(GroupEmail(recipients, EmailInfo("omattiedot", letterTemplateNameFor(lahetysSyy), language))) match {
             case Some(id) =>
-              if (vastaanottopostiService.sendConfirmation(settings.sendConfirmationRetries, batch)) {
+              if (vastaanottopostiService.sendConfirmation(batch)) {
                 logger.info(s"Succesfully confirmed batch id: $id")
               } else {
                 logger.error(s"Could not send confirmation! Batch was still sent, batch id: $id")

@@ -7,24 +7,27 @@ import fi.vm.sade.vt.emailer.json.JsonFormats
 import fi.vm.sade.vt.emailer.util.RandomDataGenerator._
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
-
-import scala.util.Random
 import scalaj.http.HttpOptions
+
+import scala.annotation.tailrec
+import scala.util.{Failure, Random, Success, Try}
 
 trait VastaanottopostiComponent {
   this: ApplicationSettingsComponent =>
 
   val vastaanottopostiService: VastaanottopostiService
+  type ResponseWithHeaders = (Int, Map[String, String], String)
+  private val responseHasOkStatus: ResponseWithHeaders => Boolean = { case (status, _, _) => status >= 200 && status < 300 }
 
   class RemoteVastaanottopostiService extends VastaanottopostiService with JsonFormats with Logging {
     private val httpOptions = Seq(HttpOptions.connTimeout(10 * 1000), HttpOptions.readTimeout(8 * 60 * 60 * 1000))
     private val retryCounter = 1
 
     def fetchRecipientBatch: List[Ilmoitus] = {
-      val reciepientBatchRequest = DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
-        .param("limit", settings.recipientBatchSize.toString)
+      val operation: Unit => ResponseWithHeaders = _ => DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
+              .param("limit", settings.recipientBatchSize.toString).responseWithHeaders()
 
-      reciepientBatchRequest.responseWithHeaders() match {
+      runWithRetry(operation, responseHasOkStatus, 0) match {
         case (status, _, body) if status >= 200 && status < 300 =>
           logger.info(s"Received from valinta-tulos-service: $body")
           parse(body).extract[List[Ilmoitus]]
@@ -38,19 +41,45 @@ trait VastaanottopostiComponent {
 
 
 
-    def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean = {
+    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
       val receipts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
-      val result = DefaultHttpClient.httpPost(settings.vastaanottopostiUrl, Some(Serialization.write(receipts))).header("Content-type", "application/json")
-      result.responseWithHeaders() match {
+      val operation: Unit => ResponseWithHeaders = _ => DefaultHttpClient.httpPost(
+        settings.vastaanottopostiUrl,
+        Some(Serialization.write(receipts))).header("Content-type", "application/json").responseWithHeaders()
+
+      runWithRetry(operation, responseHasOkStatus, 0) match {
         case (status, _, _) if status >= 200 && status < 300 =>
           true
-        case (status, _, body) if retryCounter <= sendConfirmationRetries =>
-          Thread.sleep(settings.sendConfirmationSleep.toMillis * retryCounter)
-          logger.error(s"Retrying to send confirmation since it failed with status: $status and body: $body")
-          sendConfirmation(retryCounter + 1, recipients)
         case (status, _, body) =>
           logger.error(s"Sending confirmation failed with status: $status and body: $body")
           false
+      }
+    }
+
+    @tailrec
+    private def runWithRetry[R](operation: Unit => R, success: R => Boolean, retryCount: Int): R = {
+      val msToSleep = settings.sendConfirmationSleep.toMillis * retryCount
+      Try(operation.apply()) match {
+        case Success(result) if success(result) =>
+          result
+        case Success(result) if retryCount >= settings.sendConfirmationRetries =>
+          result
+        case Success(result) =>
+          logger.warn(s"Sleeping for $msToSleep ms before running retry " +
+            s"$retryCount/${settings.sendConfirmationRetries}, " +
+            s"since HTTP request failed failed with $result...")
+          Thread.sleep(msToSleep)
+          logger.warn("Retrying now.")
+          runWithRetry(operation, success, retryCount + 1)
+        case Failure(e) if retryCount >= settings.sendConfirmationRetries =>
+          throw e
+        case Failure(e) =>
+          logger.warn(s"Sleeping for $msToSleep ms before running retry " +
+            s"$retryCount/${settings.sendConfirmationRetries}, " +
+            s"since HTTP request failed failed with exception...", e)
+          Thread.sleep(msToSleep)
+          logger.warn("Retrying now.")
+          runWithRetry(operation, success, retryCount + 1)
       }
     }
   }
@@ -71,7 +100,7 @@ trait VastaanottopostiComponent {
       }
     }
 
-    def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean = {
+    def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
       _confirmAmount += recipients.size
       true
     }
@@ -92,5 +121,5 @@ trait VastaanottopostiComponent {
 trait VastaanottopostiService {
   def fetchRecipientBatch: List[Ilmoitus]
 
-  def sendConfirmation(sendConfirmationRetries: Int, recipients: List[Ilmoitus]): Boolean
+  def sendConfirmation(recipients: List[Ilmoitus]): Boolean
 }
