@@ -21,5 +21,5 @@ valinta-tulos-service.batch.size={{ vt_batch_size }}
 valinta-tulos-service.vastaanottoposti.url={{host_alb}}/valinta-tulos-service/vastaanottoposti
 
 # SÄHKÖPOSTIEN LÄHETYSKUITTAUS
-valinta-tulos-service.http.retries={{ valinta_tulos_emailer_http_retries_count || default('3') }}
-valinta-tulos-service.http.retry.sleep.seconds={{ valinta_tulos_email_http_retries_delay_seconds || default('10') }}
+valinta-tulos-service.http.retries={{ valinta_tulos_emailer_http_retries_count | default('3') }}
+valinta-tulos-service.http.retry.sleep.seconds={{ valinta_tulos_email_http_retries_delay_seconds | default('10') }}
