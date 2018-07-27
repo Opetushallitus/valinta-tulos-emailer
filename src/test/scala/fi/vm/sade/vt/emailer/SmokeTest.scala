@@ -3,7 +3,6 @@ package fi.vm.sade.vt.emailer
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.Registry
 import fi.vm.sade.vt.emailer.config.Registry.{LocalVT, Registry}
-import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.apache.log4j._
 import org.apache.log4j.spi.LoggingEvent
 import org.junit.runner.RunWith
@@ -15,7 +14,7 @@ import org.specs2.runner.JUnitRunner
 class SmokeTest extends Specification with HttpComponentsClient with Logging {
   lazy val registry: Registry = Registry.fromString(Option(System.getProperty("valintatulos.profile")).getOrElse("localvt"), CommandLineArgs())
 
-  override def baseUrl: String = "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service"
+  override def baseUrl: String = "http://localhost:" + ValintaTulosServiceWarRunner.valintatulosPort + "/valinta-tulos-service"
 
   "Fetch, send and confirm batch" in {
     registry.start()

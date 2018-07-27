@@ -5,7 +5,6 @@ import java.util.Properties
 
 import fi.vm.sade.utils.config.{ApplicationSettingsLoader, ConfigTemplateProcessor}
 import fi.vm.sade.vt.emailer.CommandLineArgs
-import fi.vm.sade.vt.emailer.util.ValintatulosServiceRunner
 import org.apache.log4j.PropertyConfigurator
 
 object Registry {
@@ -39,7 +38,7 @@ object Registry {
     */
   class Dev(val commandLineArgs: CommandLineArgs) extends Registry with ExampleTemplatedProps {
     override def start() {
-      ValintatulosServiceRunner.start
+      startVtsRunnerFromTestClassPathViaReflection()
     }
   }
 
@@ -67,7 +66,7 @@ object Registry {
   class LocalVT(val commandLineArgs: CommandLineArgs) extends ExampleTemplatedProps with StubbedGroupEmail {
 
     override def start() {
-      ValintatulosServiceRunner.start
+      startVtsRunnerFromTestClassPathViaReflection()
     }
 
     def lastEmailSize() = groupEmailService match {
@@ -78,7 +77,7 @@ object Registry {
     implicit val settingsParser = ApplicationSettingsParser(commandLineArgs)
     override lazy val settings = ConfigTemplateProcessor.createSettings("valinta-tulos-emailer", templateAttributesFile)
       .withOverride("valinta-tulos-service.vastaanottoposti.url",
-        "http://localhost:" + ValintatulosServiceRunner.valintatulosPort + "/valinta-tulos-service/vastaanottoposti")
+        "http://localhost:" + System.getProperty("ValintaTulosServiceWarRunner.port") + "/valinta-tulos-service/vastaanottoposti")
   }
 
   trait ExternalProps extends WithCommandLineArgs {
@@ -118,4 +117,11 @@ object Registry {
     val settings: ApplicationSettings
   }
 
+  private def startVtsRunnerFromTestClassPathViaReflection(): Unit = {
+    val warRunnerClass: Class[_] = Class.forName("fi.vm.sade.vt.emailer.ValintaTulosServiceWarRunner")
+    val warRunner = warRunnerClass.getConstructors.head.newInstance(Some("it"))
+    val startMethod = warRunnerClass.getMethod("start")
+    startMethod.setAccessible(true)
+    startMethod.invoke(warRunner)
+  }
 }
