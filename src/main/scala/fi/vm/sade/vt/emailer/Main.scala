@@ -30,6 +30,7 @@ object Main extends App {
 class Main(registry: Registry) extends Logging {
   def start(): Unit = {
     logger.info("***** VT-emailer started *****")
+    logger.error("Testing VT-emailer error log alert")
     Try(Timer.timed("Batch send") {
       val ids = registry.mailer.sendMail
       if (ids.nonEmpty) {
