@@ -66,6 +66,7 @@ trait MailerComponent {
 
     private def sendBatch(batch: List[Ilmoitus], language: String, lahetysSyy: LahetysSyy): Option[String] = {
       val recipients: List[Recipient] = batch.map(ryhmasahkoposti.VTRecipient(_, language))
+
       if (!settings.testMode) {
         logger.info(s"Starting to send batch. Language $language. LahetysSyy $lahetysSyy Batch size ${recipients.size}")
         try {

@@ -1,13 +1,19 @@
 package fi.vm.sade.vt.emailer.config
 
+import java.util.concurrent.TimeUnit.SECONDS
+
 import com.typesafe.config._
 import fi.vm.sade.groupemailer.GroupEmailerSettings
 import fi.vm.sade.vt.emailer.CommandLineArgs
 
+import scala.concurrent.duration.Duration
+
 case class ApplicationSettings(config: Config, commandLineArgs: CommandLineArgs) extends GroupEmailerSettings(config) {
-  val vastaanottopostiUrl = config.getString("valinta-tulos-service.vastaanottoposti.url")
-  val recipientBatchSize = config.getInt("valinta-tulos-service.batch.size")
-  val testMode = commandLineArgs.test
+  val vastaanottopostiUrl: String = config.getString("valinta-tulos-service.vastaanottoposti.url")
+  val recipientBatchSize: Int = config.getInt("valinta-tulos-service.batch.size")
+  val testMode: Boolean = commandLineArgs.test
+  val sendConfirmationRetries: Int = config.getInt("valinta-tulos-service.http.retries")
+  val sendConfirmationSleep: Duration = Duration(config.getInt("valinta-tulos-service.http.retry.sleep.seconds"), SECONDS)
 }
 
 case class ApplicationSettingsParser(commandLineArgs: CommandLineArgs) extends fi.vm.sade.utils.config.ApplicationSettingsParser[ApplicationSettings] {

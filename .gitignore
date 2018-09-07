@@ -90,3 +90,6 @@ activemq-data
 
 #gatling
 gatling/
+
+# OPH developer test garbage
+valintarekisteri-it-db
