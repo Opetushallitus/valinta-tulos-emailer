@@ -1,8 +1,15 @@
 package fi.vm.sade.vt.emailer.valintatulos
 
 
+import java.util.Date
+
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy.LahetysSyy
 import org.joda.time.DateTime
+
+case class VtsPollResult(complete: Boolean,
+                         candidatesProcessed: Int,
+                         started: Date,
+                         mailables: List[Ilmoitus])
 
 case class Ilmoitus(
                      hakemusOid: String,

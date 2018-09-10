@@ -1,5 +1,7 @@
 package fi.vm.sade.vt.emailer.valintatulos
 
+import java.util.Date
+
 import fi.vm.sade.utils.http.DefaultHttpClient
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.ApplicationSettingsComponent
@@ -23,23 +25,22 @@ trait VastaanottopostiComponent {
     private val httpOptions = Seq(HttpOptions.connTimeout(10 * 1000), HttpOptions.readTimeout(8 * 60 * 60 * 1000))
     private val retryCounter = 1
 
-    def fetchRecipientBatch: List[Ilmoitus] = {
+    def fetchRecipientBatch: VtsPollResult = {
       val operation: Unit => ResponseWithHeaders = _ => DefaultHttpClient.httpGet(settings.vastaanottopostiUrl, httpOptions: _*)
-              .param("limit", settings.recipientBatchSize.toString).responseWithHeaders()
+        .param("limit", settings.recipientBatchSize.toString)
+        .param("durationLimitMinutes", settings.recipientBatchLimitMinutes.toString)
+        .responseWithHeaders()
 
       runWithRetry(operation, responseHasOkStatus, 0) match {
         case (status, _, body) if status >= 200 && status < 300 =>
           logger.info(s"Received from valinta-tulos-service: $body")
-          parse(body).extract[List[Ilmoitus]]
+          parse(body).extract[VtsPollResult]
         case (status, _, body) =>
           logger.error(s"Couldn't not connect to: ${settings.vastaanottopostiUrl}")
           logger.error(s"Fetching recipient batch failed with status: $status and body: $body")
-          List()
+          VtsPollResult(complete = false, -1, new Date(), Nil)
       }
     }
-
-
-
 
     def sendConfirmation(recipients: List[Ilmoitus]): Boolean = {
       val receipts: List[LahetysKuittaus] = recipients.map(LahetysKuittaus(_))
@@ -90,13 +91,13 @@ trait VastaanottopostiComponent {
     val maxResults: Int = settings.emailBatchSize + 1
     val recipients = List.fill(maxResults)(randomIlmoitus)
 
-    def fetchRecipientBatch: List[Ilmoitus] = {
+    def fetchRecipientBatch: VtsPollResult = {
       if (sentAmount < maxResults) {
         val guys = recipients.slice(sentAmount, sentAmount + settings.recipientBatchSize)
         sentAmount += guys.size
-        guys
+        VtsPollResult(complete = true, sentAmount, new Date(), guys)
       } else {
-        List()
+        VtsPollResult(complete = true, sentAmount, new Date(), Nil)
       }
     }
 
@@ -119,7 +120,7 @@ trait VastaanottopostiComponent {
 }
 
 trait VastaanottopostiService {
-  def fetchRecipientBatch: List[Ilmoitus]
+  def fetchRecipientBatch: VtsPollResult
 
   def sendConfirmation(recipients: List[Ilmoitus]): Boolean
 }
