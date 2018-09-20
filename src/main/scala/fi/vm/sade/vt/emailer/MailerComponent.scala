@@ -4,7 +4,7 @@ import fi.vm.sade.groupemailer.{EmailInfo, GroupEmail, GroupEmailComponent, Reci
 import fi.vm.sade.utils.slf4j.Logging
 import fi.vm.sade.vt.emailer.config.ApplicationSettingsComponent
 import fi.vm.sade.vt.emailer.valintatulos.LahetysSyy._
-import fi.vm.sade.vt.emailer.valintatulos.{Ilmoitus, VastaanottopostiComponent}
+import fi.vm.sade.vt.emailer.valintatulos.{Ilmoitus, VastaanottopostiComponent, VtsPollResult}
 
 import scala.collection.immutable.HashMap
 
@@ -37,8 +37,12 @@ trait MailerComponent {
       }
 
       logger.info("Fetching recipients from valinta-tulos-service")
-      val newBatch = vastaanottopostiService.fetchRecipientBatch
-      logger.info(s"Found ${newBatch.size} to send")
+      val newPollResult: VtsPollResult = vastaanottopostiService.fetchRecipientBatch
+      val newBatch = newPollResult.mailables
+      logger.info(s"Found ${newBatch.size} to send. " +
+        s"complete == ${newPollResult.complete}, " +
+        s"candidatesProcessed == ${newPollResult.candidatesProcessed}, " +
+        s"last poll started == ${newPollResult.started}")
       newBatch.foreach(ilmoitus => logger.info("Found " + ilmoitus.toString))
 
       if (newBatch.nonEmpty) {
@@ -49,17 +53,24 @@ trait MailerComponent {
           logger.info(s"Email batch size exceeded. Sending batch nr. $batchNr")
           val batchIds: List[String] = sendAndConfirm(currentBatch)
           collectAndSend(batchNr + 1, batchIds, List.empty)
+        } else if (!newPollResult.complete) {
+          logger.info(s"Time limit for single batch retrieval exceeded. Sending batch nr. $batchNr")
+          val batchIds: List[String] = sendAndConfirm(currentBatch)
+          collectAndSend(batchNr + 1, batchIds, List.empty)
         } else {
           logger.info(s"Email batch size not exceeded. ($currentBatchSize < $sendBatchSize)")
           collectAndSend(batchNr, ids, currentBatch)
         }
       } else {
-        if (batch.nonEmpty) {
+        if (batch.nonEmpty && newPollResult.complete) {
           logger.info("Last batch fetched")
           sendAndConfirm(batch)
-        } else {
-          logger.info("Batch size was 0, stopping")
+        } else if (newPollResult.complete) {
+          logger.info("Polling complete and all batches processed, stopping")
           ids
+        } else {
+          logger.info("Continuing to poll")
+          collectAndSend(batchNr, ids, batch)
         }
       }
     }

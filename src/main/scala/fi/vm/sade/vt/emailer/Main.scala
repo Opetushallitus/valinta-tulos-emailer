@@ -2,7 +2,7 @@ package fi.vm.sade.vt.emailer
 
 import fi.vm.sade.utils.Timer
 import fi.vm.sade.utils.slf4j.Logging
-import fi.vm.sade.vt.emailer.config.Registry
+import fi.vm.sade.vt.emailer.config.{ApplicationSettingsParser, Registry}
 import fi.vm.sade.vt.emailer.config.Registry.Registry
 import scopt.OptionParser
 
@@ -30,6 +30,8 @@ object Main extends App {
 class Main(registry: Registry) extends Logging {
   def start(): Unit = {
     logger.info("***** VT-emailer started *****")
+    logger.info(s"Using settings: " +
+      s"${registry.settings.withOverride("ryhmasahkoposti.cas.password", "***" )(ApplicationSettingsParser(CommandLineArgs()))}")
     Try(Timer.timed("Batch send") {
       val ids = registry.mailer.sendMail
       if (ids.nonEmpty) {
