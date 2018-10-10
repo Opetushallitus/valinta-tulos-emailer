@@ -1,0 +1,49 @@
+sudo: required
+
+language: scala
+
+jdk:
+  - oraclejdk8
+
+services:
+  - docker
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+
+cache:
+  directories:
+  - $HOME/.m2
+
+env:
+  global:
+    # AWS_ACCESS_KEY_ID
+    - secure: "DlwdQI31eKDQYRCwCJe+s8hDOl7uSkfxYfpQgjvfXfQbUQKGMKx5B0NlL6mb88aX1liaR0bpqSi+nalm0loTcJzi7BK84jkoAv8MpmUdQM0dovf+ILzXSaebm6Xa+tFC1UU96Tfx7OyYvvmUiL6l7paUo+I9DB5+ORdFtjXqGKM="
+    # AWS_SECRET_ACCESS_KEY
+    - secure: "dpYQ/HB5JXJEQCKsFjjFH+4yw+V/203rN0iczhqddK6Idz0Fo8VUOyhZd2hoiXMhlKREGVmLzKck2r6LcF9A0p6BoiPKg0+tWOoq+6lQLJyrNEwPOg0S/XEWPPKNG5/mXQtOtKt0anUo5tkw/ickevfGVuBSzrZ8Lt5O33bOrgg="
+
+install:
+  - git clone https://github.com/Opetushallitus/ci-tools.git
+  - source ci-tools/common/setup-tools.sh
+
+before_script:
+  - DB_NAME=valintarekisteri
+  - psql -c "create database $DB_NAME;" -U postgres
+  - psql -d $DB_NAME -f postgresql/init_it_postgresql.sql
+
+script:
+  - mvn clean package -B -Dbranch=${TRAVIS_BRANCH} -Drevision=${TRAVIS_COMMIT} -DbuildNumber=${TRAVIS_BUILD_NUMBER} -Dvalintatulos.it.postgres.port=5432 -Dvalintatulos.it.postgres.alreadyrunning=true
+
+  - mv target/valinta-tulos-emailer-*-jar-with-dependencies.jar $DOCKER_BUILD_DIR/artifact/valinta-tulos-emailer.jar
+  - cp -vr src/main/resources/* $DOCKER_BUILD_DIR/config/
+
+  - export BASE_IMAGE="base-legacy:0.1"
+  - ./ci-tools/common/pull-image.sh
+  - ./build-tools/build-scheduled-fatjar.sh valinta-tulos-emailer
+
+deploy:
+  provider: script
+  script: ./ci-tools/build/upload-image.sh valinta-tulos-emailer
+  on:
+    all_branches: true
